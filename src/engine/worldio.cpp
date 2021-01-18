@@ -69,7 +69,7 @@ bool loadents(const char *fname, vector<entity> &ents, uint *crc)
     if(f->read(&hdr, 7*sizeof(int)) != 7*sizeof(int)) { conoutf(CON_ERROR, "map %s has malformatted header", ogzname); delete f; return false; }
     lilswap(&hdr.version, 6);
     if(memcmp(hdr.magic, "OCTA", 4) || hdr.worldsize <= 0|| hdr.numents < 0) { conoutf(CON_ERROR, "map %s has malformatted header", ogzname); delete f; return false; }
-    if(hdr.version>MAPVERSION) { conoutf(CON_ERROR, "map %s requires a newer version of Cube 2: Sauerbraten", ogzname); delete f; return false; }
+    if(hdr.version>MAPVERSION) { conoutf(CON_ERROR, "map %s requires a newer version of BubeEngine", ogzname); delete f; return false; }
     compatheader chdr;
     if(hdr.version <= 28)
     {
@@ -1009,7 +1009,7 @@ bool load_world(const char *mname, const char *cname)        // still supports a
     if(f->read(&hdr, 7*sizeof(int)) != 7*sizeof(int)) { conoutf(CON_ERROR, "map %s has malformatted header", ogzname); delete f; return false; }
     lilswap(&hdr.version, 6);
     if(memcmp(hdr.magic, "OCTA", 4) || hdr.worldsize <= 0|| hdr.numents < 0) { conoutf(CON_ERROR, "map %s has malformatted header", ogzname); delete f; return false; }
-    if(hdr.version>MAPVERSION) { conoutf(CON_ERROR, "map %s requires a newer version of Cube 2: Sauerbraten", ogzname); delete f; return false; }
+    if(hdr.version>MAPVERSION) { conoutf(CON_ERROR, "map %s requires a newer version of BubeEngine", ogzname); delete f; return false; }
     compatheader chdr;
     if(hdr.version <= 28)
     {
@@ -1287,7 +1287,7 @@ void writeobj(char *name)
     defformatstring(fname, "%s.obj", name);
     stream *f = openfile(path(fname), "w"); 
     if(!f) return;
-    f->printf("# obj file of Cube 2 level\n\n");
+    f->printf("# obj file of BubeEngine level\n\n");
     defformatstring(mtlname, "%s.mtl", name);
     path(mtlname);
     f->printf("mtllib %s\n\n", mtlname); 
@@ -1371,7 +1371,7 @@ void writeobj(char *name)
 
     f = openfile(mtlname, "w");
     if(!f) return;
-    f->printf("# mtl file of Cube 2 level\n\n");
+    f->printf("# mtl file of BubeEngine level\n\n");
     loopv(usedmtl)
     {
         VSlot &vslot = lookupvslot(usedmtl[i], false);
