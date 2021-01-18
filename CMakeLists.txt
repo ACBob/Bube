@@ -12,11 +12,11 @@ option(BUILD_SERVER "Enable building the dedicated server" OFF)
 
 ## client
 if (BUILD_CLIENT)
-    include(ClientCMakeLists.txt)
+    include(src/ClientCMakeLists.txt)
 endif()
 
 ## server
 ## FIXME FIXME FIXME FIXME When building the server, it gets in the way of the client building by defining STANDALONE
 if (BUILD_SERVER)
-    include(ServerCMakeLists.txt)
+    include(src/ServerCMakeLists.txt)
 endif()
