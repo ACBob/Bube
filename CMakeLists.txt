@@ -4,9 +4,6 @@ project(BubeEngine)
 ## enet
 add_subdirectory(enet)
 
-## rpggame
-add_subdirectory(rpggame)
-
 option(BUILD_CLIENT "Enable building the client" ON)
 option(BUILD_SERVER "Enable building the dedicated server" OFF)
 
