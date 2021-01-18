@@ -12,6 +12,10 @@
 #include "texture.h"
 #include "model.h"
 
+// I replaced a bunch of instances of '8' in octa.cpp with this, didn't do anything.
+// Might've broken something, lol!
+#define MAP_ROOT_CUBE_COUNT 8
+
 extern dynent *player;
 extern physent *camera1;                // special ent that acts as camera, same object as player1 in FPS mode
 
@@ -20,7 +24,7 @@ extern int mapversion;
 extern char *maptitle;
 extern vector<ushort> texmru;
 extern int xtraverts, xtravertsva;
-extern const ivec cubecoords[8];
+extern const ivec cubecoords[MAP_ROOT_CUBE_COUNT];
 extern const ivec facecoords[6][4];
 extern const uchar fv[6][4];
 extern const uchar fvmasks[64];
