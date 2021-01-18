@@ -1,8 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(BubeClient)
 
-include_directories(include shared engine fpsgame enet/include)
-set(CMAKE_CXX_FLAGS "-O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
 set(clientSources
 	shared/crypto.cpp
 	shared/geom.cpp
@@ -60,6 +58,10 @@ set(clientSources
 	fpsgame/waypoint.cpp
 	fpsgame/weapon.cpp
 )
+list(TRANSFORM clientSources PREPEND "src/")
 
 add_executable(client ${clientSources})
+
+target_include_directories(client PUBLIC src/include src/shared src/engine src/fpsgame src/enet/include)
 target_link_libraries(client enet SDL2 z rt GL SDL2_mixer SDL2_image)
+

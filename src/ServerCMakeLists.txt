@@ -1,9 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 project(BubeDedicatedServer)
 
-include_directories(include shared engine fpsgame enet/include)
-set(CMAKE_CXX_FLAGS "-O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
-
 set(serverSources
     shared/crypto.cpp
 	shared/stream.cpp
@@ -14,7 +11,10 @@ set(serverSources
 	fpsgame/entities.cpp
 	fpsgame/server.cpp
 )
+list(TRANSFORM serverSources PREPEND "src/")
 
-add_definitions( -DSTANDALONE )
 add_executable(server ${serverSources})
+
+target_include_directories(server PUBLIC src/include src/shared src/engine src/psgame src/enet/include)
+target_compile_definitions( server PUBLIC -DSTANDALONE )
 target_link_libraries(server enet z)

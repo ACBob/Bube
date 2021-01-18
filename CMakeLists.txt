@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(BubeEngine)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
+
 ## enet
-add_subdirectory(enet)
+add_subdirectory(src/enet)
 
 option(BUILD_CLIENT "Enable building the client" ON)
-option(BUILD_SERVER "Enable building the dedicated server" OFF)
+option(BUILD_SERVER "Enable building the dedicated server" ON)
 
 ## client
 if (BUILD_CLIENT)
@@ -13,7 +15,6 @@ if (BUILD_CLIENT)
 endif()
 
 ## server
-## FIXME FIXME FIXME FIXME When building the server, it gets in the way of the client building by defining STANDALONE
 if (BUILD_SERVER)
     include(src/ServerCMakeLists.txt)
 endif()
