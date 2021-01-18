@@ -2,6 +2,6 @@
 *.a
 
 # Exclude the directory *i* use to build
-src/build
+build
 # Also temporarily ignore this
 game/packages
