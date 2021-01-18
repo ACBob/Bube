@@ -841,7 +841,8 @@ int playsoundname(const char *s, const vec *loc, int vol, int flags, int loops, 
     return playsound(id, loc, NULL, flags, loops, fade, chanid, radius, expire);
 }
 
-ICOMMAND(sound, "i", (int *n), playsound(*n));
+ICOMMAND(sound, "i", (int *n), playsound(*n)); // Purely compatability. playsound is the intended command name, as we've transitioned to names.
+ICOMMAND(playsound, "si", (char *n, int *v), playsoundname((const char*)n, nullptr, *v));
 
 void resetsound()
 {
