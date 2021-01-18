@@ -9,3 +9,8 @@
 # Exclude compiled stuff
 /game/client*
 /game/server*
+# Also exclude the game's generated files
+/game/screenshot
+/game/config.cfg
+/game/init.cfg
+/game/restore.cfg
