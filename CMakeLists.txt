@@ -9,6 +9,8 @@ add_subdirectory(src/enet)
 option(BUILD_CLIENT "Enable building the client" ON)
 option(BUILD_SERVER "Enable building the dedicated server" ON)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/game)
+
 ## client
 if (BUILD_CLIENT)
     include(src/ClientCMakeLists.txt)

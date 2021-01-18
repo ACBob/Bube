@@ -5,3 +5,7 @@
 /build
 # Yes I use vscode
 /.vscode/
+
+# Exclude compiled stuff
+/game/client*
+/game/server*
