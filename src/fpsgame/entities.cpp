@@ -115,7 +115,8 @@ namespace entities
                 case TELEPORT:
                     if(e.attr2 > 0) preloadmodel(mapmodelname(e.attr2));
                 case JUMPPAD:
-                    if(e.attr4 > 0) preloadmapsound(e.attr4);
+                    // TODO : fix map sounds
+                    if(e.attr4 > 0) preloadmapsound("");
                     break;
             }
         }
@@ -206,8 +207,9 @@ namespace entities
             extentity &e = *ents[tp];
             if(e.attr4 >= 0) 
             {
-                int snd = S_TELEPORT, flags = 0;
-                if(e.attr4 > 0) { snd = e.attr4; flags = SND_MAP; }
+                const char *snd = S_TELEPORT;
+                int flags = 0;
+                if(e.attr4 > 0) { flags = SND_MAP; }
                 fpsent *h = followingplayer(player1);
                 playsound(snd, d==h ? NULL : &e.o, NULL, flags);
                 if(d!=h && ents.inrange(td) && ents[td]->type == TELEDEST) playsound(snd, &ents[td]->o, NULL, flags);
@@ -233,8 +235,9 @@ namespace entities
             extentity &e = *ents[jp];
             if(e.attr4 >= 0)
             {
-                int snd = S_JUMPPAD, flags = 0;
-                if(e.attr4 > 0) { snd = e.attr4; flags = SND_MAP; }
+                const char *snd = S_JUMPPAD;
+                int flags = 0;
+                if(e.attr4 > 0) { flags = SND_MAP; }
                 playsound(snd, d == followingplayer(player1) ? NULL : &e.o, NULL, flags);
             }
         }

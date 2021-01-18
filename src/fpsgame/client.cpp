@@ -1318,7 +1318,7 @@ namespace game
 
             case N_SOUND:
                 if(!d) return;
-                playsound(getint(p), &d->o);
+                playsound((char *)p.get(), &d->o);
                 break;
 
             case N_TEXT:

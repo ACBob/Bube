@@ -170,47 +170,71 @@ static const char * const mastermodecolors[] = { "",       "\f0",    "\f2",     
 static const char * const mastermodeicons[] =  { "server", "server", "serverlock", "serverlock", "serverpriv", "serverpriv" };
 
 // hardcoded sounds, defined in sounds.cfg
-enum
-{
-    S_JUMP = 0, S_LAND, S_RIFLE, S_PUNCH1, S_SG, S_CG,
-    S_RLFIRE, S_RLHIT, S_WEAPLOAD, S_ITEMAMMO, S_ITEMHEALTH,
-    S_ITEMARMOUR, S_ITEMPUP, S_ITEMSPAWN, S_TELEPORT, S_NOAMMO, S_PUPOUT,
-    S_PAIN1, S_PAIN2, S_PAIN3, S_PAIN4, S_PAIN5, S_PAIN6,
-    S_DIE1, S_DIE2,
-    S_FLAUNCH, S_FEXPLODE,
-    S_SPLASH1, S_SPLASH2,
-    S_GRUNT1, S_GRUNT2, S_RUMBLE,
-    S_PAINO,
-    S_PAINR, S_DEATHR,
-    S_PAINE, S_DEATHE,
-    S_PAINS, S_DEATHS,
-    S_PAINB, S_DEATHB,
-    S_PAINP, S_PIGGR2,
-    S_PAINH, S_DEATHH,
-    S_PAIND, S_DEATHD,
-    S_PIGR1, S_ICEBALL, S_SLIMEBALL,
-    S_JUMPPAD, S_PISTOL,
+#define S_JUMP "jump"
+#define S_LAND "land"
+#define S_RIFLE "rifleshoot"
+#define S_PUNCH1 "punch"
+#define S_SG "shotgunshoot"
+// TODO: what is cg
+#define S_CG "cg"
+#define S_RLFIRE "rlfire"
+#define S_RLHIT "rlhit"
+#define S_ITEMARMOUR "armouritem"
+#define S_ITEMPUP "itempickup"
+#define S_ITEMSPAWN "itemspawn"
+#define S_ITEMAMMO "itemammo"
+#define S_ITEMHEALTH "itemhealth"
+#define S_TELEPORT "teleport"
+#define S_NOAMMO "noammo"
+#define S_WEAPLOAD "weaponload"
+// TODO: what is pupout
+#define S_PUPOUT "pupout"
+#define S_PAIN0 "pain0"
+#define S_PAIN1 "pain1"
+#define S_PAIN2 "pain2"
+#define S_PAIN3 "pain3"
+#define S_PAIN4 "pain4"
+#define S_PAIN5 "pain5"
+#define S_PAIN6 "pain6"
+#define S_DIE1 "death1"
+#define S_DIE2 "death2"
+// TODO: what is f*
+#define S_FLAUNCH "flaunch"
+#define S_FEXPLODE "fexplode"
+#define S_SPLASH1 "splash1"
+#define S_SPLASH2 "splash2"
+#define S_GRUNT1 "grunt1"
+#define S_GRUNT2 "grunt2"
+#define S_RUMBLE "rumble"
+#define S_PIGR1 "pig1"
+#define S_ICEBALL "iceball"
+#define S_SLIMEBALL "slimeball"
+#define S_JUMPPAD "jumppad"
+#define S_PISTOL "pistolshoot"
+#define S_BURN "burn"
+#define S_CHAINSAW_ATTACK "chainsawshoot"
+#define S_CHAINSAW_IDLE "chainsawidle"
+#define S_HIT "hitsound"
 
-    S_V_BASECAP, S_V_BASELOST,
-    S_V_FIGHT,
-    S_V_BOOST, S_V_BOOST10,
-    S_V_QUAD, S_V_QUAD10,
-    S_V_RESPAWNPOINT,
+#define S_V_BASECAP "basecap"
+#define S_V_BASELOST "baselost"
 
-    S_FLAGPICKUP,
-    S_FLAGDROP,
-    S_FLAGRETURN,
-    S_FLAGSCORE,
-    S_FLAGRESET,
+#define S_FLAGDROP "flaglost"
+#define S_FLAGSCORE "flagwin"
+#define S_FLAGFAIL "flaglose"
+#define S_FLAGPICKUP "flagpickup"
+#define S_FLAGRETURN "flagreturn"
+#define S_FLAGRESET "flagreset"
 
-    S_BURN,
-    S_CHAINSAW_ATTACK,
-    S_CHAINSAW_IDLE,
+#define S_V_FIGHT "fight"
 
-    S_HIT,
-    
-    S_FLAGFAIL
-};
+#define S_V_QUAD10 "quad10"
+#define S_V_BOOST10 "boost10"
+
+#define S_V_QUAD "quad"
+#define S_V_BOOST "boost"
+
+#define S_V_RESPAWNPOINT "respawnpoint"
 
 // network messages codes, c2s, c2c, s2c
 
@@ -330,7 +354,7 @@ enum
     HICON_SPACE   = 40
 };
 
-static struct itemstat { int add, max, sound; const char *name; int icon, info; } itemstats[] =
+static struct itemstat { int add, max; const char *sound, *name; int icon, info; } itemstats[] =
 {
     {10,    30,    S_ITEMAMMO,   "SG", HICON_SG, GUN_SG},
     {20,    60,    S_ITEMAMMO,   "CG", HICON_CG, GUN_CG},
@@ -350,7 +374,7 @@ static struct itemstat { int add, max, sound; const char *name; int icon, info; 
 #define EXP_SELFPUSH 2.5f
 #define EXP_DISTSCALE 1.5f
 
-static const struct guninfo { int sound, attackdelay, damage, spread, projspeed, kickamount, range, rays, hitpush, exprad, ttl; const char *name, *file; short part; } guns[NUMGUNS] =
+static const struct guninfo { const char *sound; int attackdelay, damage, spread, projspeed, kickamount, range, rays, hitpush, exprad, ttl; const char *name, *file; short part; } guns[NUMGUNS] =
 {
     { S_PUNCH1,    250,  50,   0,   0,  0,   14,  1,  80,  0,    0, "fist",            "fist",   0 },
     { S_SG,       1400,  10, 400,   0, 20, 1024, 20,  80,  0,    0, "shotgun",         "shotg",  0 },
@@ -363,7 +387,7 @@ static const struct guninfo { int sound, attackdelay, damage, spread, projspeed,
     { S_ICEBALL,   200,  40,   0, 120,  1, 1024,  1,  80, 40,    0, "iceball",         NULL,     PART_FIREBALL2 },
     { S_SLIMEBALL, 200,  30,   0, 640,  1, 1024,  1,  80, 40,    0, "slimeball",       NULL,     PART_FIREBALL3 },
     { S_PIGR1,     250,  50,   0,   0,  1,   12,  1,  80,  0,    0, "bite",            NULL,     0 },
-    { -1,            0, 120,   0,   0,  0,    0,  1,  80, 40,    0, "barrel",          NULL,     0 }
+    { "",            0, 120,   0,   0,  0,    0,  1,  80, 40,    0, "barrel",          NULL,     0 }
 };
 
 #include "ai.h"
@@ -549,7 +573,10 @@ struct fpsent : dynent, fpsstate
     int lastpain;
     int lastaction, lastattackgun;
     bool attacking;
-    int attacksound, attackchan, idlesound, idlechan;
+    const char *attacksound;
+    int attackchan;
+    const char *idlesound;
+    int idlechan;
     int lasttaunt;
     int lastpickup, lastpickupmillis, lastbase, lastrepammo, flagpickup, tokens;
     vec lastcollect;
@@ -565,7 +592,7 @@ struct fpsent : dynent, fpsstate
 
     vec muzzle;
 
-    fpsent() : weight(100), clientnum(-1), privilege(PRIV_NONE), lastupdate(0), plag(0), ping(0), lifesequence(0), respawned(-1), suicided(-1), lastpain(0), attacksound(-1), attackchan(-1), idlesound(-1), idlechan(-1), frags(0), flags(0), deaths(0), totaldamage(0), totalshots(0), edit(NULL), smoothmillis(-1), playermodel(-1), ai(NULL), ownernum(-1), muzzle(-1, -1, -1)
+    fpsent() : weight(100), clientnum(-1), privilege(PRIV_NONE), lastupdate(0), plag(0), ping(0), lifesequence(0), respawned(-1), suicided(-1), lastpain(0), attacksound(""), attackchan(-1), idlesound(""), idlechan(-1), frags(0), flags(0), deaths(0), totaldamage(0), totalshots(0), edit(NULL), smoothmillis(-1), playermodel(-1), ai(NULL), ownernum(-1), muzzle(-1, -1, -1)
     {
         name[0] = team[0] = info[0] = 0;
         respawn();
@@ -588,13 +615,15 @@ struct fpsent : dynent, fpsstate
     void stopattacksound()
     {
         if(attackchan >= 0) stopsound(attacksound, attackchan, 250);
-        attacksound = attackchan = -1;
+        attacksound = "";
+        attackchan = -1;
     }
 
     void stopidlesound()
     {
         if(idlechan >= 0) stopsound(idlesound, idlechan, 100);
-        idlesound = idlechan = -1;
+        idlesound = "";
+        idlechan = -1;
     }
 
     void respawn()
@@ -729,8 +758,8 @@ namespace game
     extern const char *teamcolorname(fpsent *d, const char *alt = "you");
     extern const char *teamcolor(const char *name, bool sameteam, const char *alt = NULL);
     extern const char *teamcolor(const char *name, const char *team, const char *alt = NULL);
-    extern void teamsound(bool sameteam, int n, const vec *loc = NULL);
-    extern void teamsound(fpsent *d, int n, const vec *loc = NULL);
+    extern void teamsound(bool sameteam, const char *name, const vec *loc = NULL);
+    extern void teamsound(fpsent *d, const char *name, const vec *loc = NULL);
     extern fpsent *pointatplayer();
     extern fpsent *hudplayer();
     extern fpsent *followingplayer(fpsent *fallback = NULL);
@@ -745,7 +774,7 @@ namespace game
     extern void damaged(int damage, fpsent *d, fpsent *actor, bool local = true);
     extern void killed(fpsent *d, fpsent *actor);
     extern void timeupdate(int timeremain);
-    extern void msgsound(int n, physent *d = NULL);
+    extern void msgsound(const char *name, physent *d = NULL);
     extern void drawicon(int icon, float x, float y, float sz = 120);
     const char *mastermodecolor(int n, const char *unknown);
     const char *mastermodeicon(int n, const char *unknown);

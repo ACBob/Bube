@@ -591,7 +591,8 @@ namespace game
 
     void shoteffects(int gun, const vec &from, const vec &to, fpsent *d, bool local, int id, int prevaction)     // create visual effect from a shot
     {
-        int sound = guns[gun].sound, pspeed = 25;
+        const char *sound = guns[gun].sound;
+        int pspeed = 25;
         switch(gun)
         {
             case GUN_FIST:
@@ -662,16 +663,14 @@ namespace game
         if(d->attacksound >= 0 && d->attacksound != sound) d->stopattacksound();
         if(d->idlesound >= 0) d->stopidlesound();
         fpsent *h = followingplayer(player1);
-        switch(sound)
+        if (sound==S_CHAINSAW_ATTACK)
         {
-            case S_CHAINSAW_ATTACK:
                 if(d->attacksound >= 0) looped = true;
                 d->attacksound = sound;
                 d->attackchan = playsound(sound, d==h ? NULL : &d->o, NULL, 0, -1, 100, d->attackchan);
-                break;
-            default:
-                playsound(sound, d==h ? NULL : &d->o);
-                break;
+        }
+        else {
+            playsound(sound, d==h ? NULL : &d->o);
         }
         if(d->quadmillis && lastmillis-prevaction>200 && !looped) playsound(S_ITEMPUP, d==h ? NULL : &d->o);
     }
@@ -917,27 +916,24 @@ namespace game
     void checkattacksound(fpsent *d, bool local)
     {
         int gun = -1;
-        switch(d->attacksound)
-        {
-            case S_CHAINSAW_ATTACK:
-                if(chainsawhudgun) gun = GUN_FIST;
-                break;
-            default:
-                return;
+        if (d->attacksound == S_CHAINSAW_ATTACK) {
+            if(chainsawhudgun) gun = GUN_FIST;
+            return;
         }
         if(gun >= 0 && gun < NUMGUNS &&
            d->clientnum >= 0 && d->state == CS_ALIVE &&
            d->lastattackgun == gun && lastmillis - d->lastaction < guns[gun].attackdelay + 50)
         {
             d->attackchan = playsound(d->attacksound, local ? NULL : &d->o, NULL, 0, -1, -1, d->attackchan);
-            if(d->attackchan < 0) d->attacksound = -1;
+            if(d->attackchan < 0) d->attacksound = "";
         }
         else d->stopattacksound();
     }
 
     void checkidlesound(fpsent *d, bool local)
     {
-        int sound = -1, radius = 0;
+        const char *sound = "";
+        int radius = 0;
         if(d->clientnum >= 0 && d->state == CS_ALIVE) switch(d->gunselect)
         {
             case GUN_FIST:
@@ -960,7 +956,7 @@ namespace game
         else if(sound >= 0)
         {
             d->idlechan = playsound(sound, local ? NULL : &d->o, NULL, 0, -1, -1, d->idlechan, radius);
-            if(d->idlechan < 0) d->idlesound = -1;
+            if(d->idlechan < 0) d->idlesound = "";
         }
     }
 

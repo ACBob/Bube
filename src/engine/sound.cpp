@@ -536,20 +536,20 @@ static struct soundtype
         clear();
     }
 
-    void preloadsound(int n)
+    void preloadsoundid(int n)
     {
         if(nosound || !configs.inrange(n)) return;
         soundconfig &config = configs[n];
         loopk(config.numslots) slots[config.slots+k].sample->load(true);
     }
 
-    void preloadsoundname(const char* name) {
+    void preloadsound(const char* name) {
         if(nosound)
             return;
         int soundid = findsound(name, 100);
         if (soundid == -1) 
             return;
-        preloadsound(soundid);
+        preloadsoundid(soundid);
     }
 
     bool playing(const soundchannel &chan, const soundconfig &config) const
@@ -636,15 +636,17 @@ void stopmapsound(extentity *e)
 void checkmapsounds()
 {
     const vector<extentity *> &ents = entities::getents();
+    
     loopv(ents)
-    {
+    {   
+        /*
         extentity &e = *ents[i];
         if(e.type!=ET_SOUND) continue;
         if(camera1->o.dist(e.o) < e.attr2)
         {
-            if(!(e.flags&EF_SOUND)) playsound(e.attr1, NULL, &e, SND_MAP, -1);
+            //if(!(e.flags&EF_SOUND)) playsound(gamesounds.configs[e.attr1], NULL, &e, SND_MAP, -1);
         }
-        else if(e.flags&EF_SOUND) stopmapsound(&e);
+        else if(e.flags&EF_SOUND) stopmapsound(&e);*/
     }
 }
 
@@ -728,31 +730,36 @@ VARP(maxsoundsatonce, 0, 7, 100);
 
 VAR(dbgsound, 0, 0, 1);
 
-void preloadsound(int n)
+void preloadsoundid(int n)
 {
-    gamesounds.preloadsound(n);
+    gamesounds.preloadsoundid(n);
 }
 
-void preloadsoundname(const char* name) {
-    gamesounds.preloadsoundname(name);
+void preloadsound(const char* name) {
+    gamesounds.preloadsound(name);
 }
 
-void preloadmapsound(int n)
+void preloadmapsoundid(int n)
 {
-    mapsounds.preloadsound(n);
+    mapsounds.preloadsoundid(n);
+}
+
+void preloadmapsound(const char* name) {
+    mapsounds.preloadsound(name);
 }
 
 void preloadmapsounds()
 {
     const vector<extentity *> &ents = entities::getents();
+    conoutf(CON_WARN, "Map sounds are currently broken! you will hear nothing!");
     loopv(ents)
     {
         extentity &e = *ents[i];
-        if(e.type==ET_SOUND) mapsounds.preloadsound(e.attr1);
+        //if(e.type==ET_SOUND) mapsounds.preloadsound(e.attr1);
     }
 }
  
-int playsound(int n, const vec *loc, extentity *ent, int flags, int loops, int fade, int chanid, int radius, int expire)
+int playsoundid(int n, const vec *loc, extentity *ent, int flags, int loops, int fade, int chanid, int radius, int expire)
 {
     if(nosound || !soundvol || (minimized && !minimizedsounds)) return -1;
 
@@ -763,7 +770,7 @@ int playsound(int n, const vec *loc, extentity *ent, int flags, int loops, int f
     if(loc)
     {
         // cull sounds that are unlikely to be heard
-        int maxrad = game::maxsoundradius(n);
+        int maxrad = game::maxsoundradius(""); // For now we use a blank sound here because it returns 500 anyway
         if(radius <= 0 || maxrad < radius) radius = maxrad;
         if(camera1->o.dist(*loc) > 1.5f*radius)
         {
@@ -837,7 +844,7 @@ void stopsounds()
     }
 }
 
-bool stopsound(int n, int chanid, int fade)
+bool stopsoundid(int n, int chanid, int fade)
 {
     if(!gamesounds.configs.inrange(n) || !channels.inrange(chanid) || !channels[chanid].inuse || !gamesounds.playing(channels[chanid], gamesounds.configs[n])) return false;
     if(dbgsound) conoutf(CON_DEBUG, "stopsound: %s", channels[chanid].slot->sample->name);
@@ -848,18 +855,23 @@ bool stopsound(int n, int chanid, int fade)
     }
     return true;
 }
+bool stopsound(const char *name, int chanid, int fade)
+{
+    int id = gamesounds.findsound(name, 100);
+    if (id < 0) return false;
+    return stopsoundid(id, chanid, fade);
+}
 
-int playsoundname(const char *s, const vec *loc, int vol, int flags, int loops, int fade, int chanid, int radius, int expire) 
+int playsound(const char *s, const vec *loc, int vol, int flags, int loops, int fade, int chanid, int radius, int expire) 
 { 
     if(!vol) vol = 100;
     int id = gamesounds.findsound(s, vol);
     // In this instance, the name attempting to be played is assumed to be the filepath as well. Keeps compatability.
     if(id < 0) id = gamesounds.addsound(s, s, vol);
-    return playsound(id, loc, NULL, flags, loops, fade, chanid, radius, expire);
+    return playsoundid(id, loc, NULL, flags, loops, fade, chanid, radius, expire);
 }
 
-ICOMMAND(sound, "i", (int *n), playsound(*n)); // Purely compatability. playsound is the intended command name, as we've transitioned to names.
-ICOMMAND(playsound, "si", (char *n, int *v), playsoundname((const char*)n, nullptr, *v));
+ICOMMAND(playsound, "si", (char *n, int *v), playsound((const char*)n, NULL, *v));
 
 void resetsound()
 {

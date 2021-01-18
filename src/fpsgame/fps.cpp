@@ -705,18 +705,18 @@ namespace game
         }
     }
 
-    void msgsound(int n, physent *d)
+    void msgsound(const char *name, physent *d)
     {
         if(!d || d==player1)
         {
-            addmsg(N_SOUND, "ci", d, n);
-            playsound(n);
+            addmsg(N_SOUND, "ci", d, name);
+            playsound(name);
         }
         else
         {
             if(d->type==ENT_PLAYER && ((fpsent *)d)->ai)
-                addmsg(N_SOUND, "ci", d, n);
-            playsound(n, &d->o);
+                addmsg(N_SOUND, "ci", d, name);
+            playsound(name, &d->o);
         }
     }
 
@@ -780,14 +780,14 @@ namespace game
 
     VARP(teamsounds, 0, 1, 1);
 
-    void teamsound(bool sameteam, int n, const vec *loc)
+    void teamsound(bool sameteam, const char *name, const vec *loc)
     {
-        playsound(n, loc, NULL, teamsounds ? (m_teammode && sameteam ? SND_USE_ALT : SND_NO_ALT) : 0);
+        playsound(name, loc, NULL, teamsounds ? (m_teammode && sameteam ? SND_USE_ALT : SND_NO_ALT) : 0);
     }
 
-    void teamsound(fpsent *d, int n, const vec *loc)
+    void teamsound(fpsent *d, const char *name, const vec *loc)
     {
-        teamsound(isteam(d->team, player1->team), n, loc);
+        teamsound(isteam(d->team, player1->team), name, loc);
     }
 
     void suicide(physent *d)
@@ -1153,24 +1153,9 @@ namespace game
 #endif
     }
 
-    int maxsoundradius(int n)
+    int maxsoundradius(const char *name)
     {
-        switch(n)
-        {
-            case S_JUMP:
-            case S_LAND:
-            case S_WEAPLOAD:
-            case S_ITEMAMMO:
-            case S_ITEMHEALTH:
-            case S_ITEMARMOUR:
-            case S_ITEMPUP:
-            case S_ITEMSPAWN:
-            case S_NOAMMO:
-            case S_PUPOUT:
-                return 340;
-            default:
-                return 500;
-        }
+        return 500;
     }
 
     bool serverinfostartcolumn(g3d_gui *g, int i)
