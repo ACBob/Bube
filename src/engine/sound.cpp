@@ -494,6 +494,10 @@ static struct soundtype
 
     int addsound(const char *name, const char *filepath, int vol, int maxuses = 0)
     {
+        if (!filepath) {
+            filepath = name; // Substitute the name for the filepath, keep compatability
+            conoutf(CON_WARN, "Sound %s is missing a filepath! Using the name instead...", name);
+        }
         soundconfig &s = configs.add();
         s.slots = addslot(name, filepath, vol);
         s.numslots = 1;
@@ -537,6 +541,15 @@ static struct soundtype
         if(nosound || !configs.inrange(n)) return;
         soundconfig &config = configs[n];
         loopk(config.numslots) slots[config.slots+k].sample->load(true);
+    }
+
+    void preloadsoundname(const char* name) {
+        if(nosound)
+            return;
+        int soundid = findsound(name, 100);
+        if (soundid == -1) 
+            return;
+        preloadsound(soundid);
     }
 
     bool playing(const soundchannel &chan, const soundconfig &config) const
@@ -718,6 +731,10 @@ VAR(dbgsound, 0, 0, 1);
 void preloadsound(int n)
 {
     gamesounds.preloadsound(n);
+}
+
+void preloadsoundname(const char* name) {
+    gamesounds.preloadsoundname(name);
 }
 
 void preloadmapsound(int n)
