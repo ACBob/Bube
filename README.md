@@ -13,7 +13,8 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
 - [ ] Remove some hard-coded stuff.
 - [ ] Add a scripting language.
 - [ ] Public domain example game.
-- [ ] Potentially replace GUI with better library.
+- [ ] Potentially replace GUI with better library.\
+      *Although all the GUIs are 3D. This is an end-of-the-road type of deal.*
 
 ## Planned Features
 - [x] Backwards-compatability with Cube 2 mods/games\

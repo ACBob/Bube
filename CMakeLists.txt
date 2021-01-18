@@ -4,7 +4,7 @@ project(BubeEngine)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
 
 ## enet
-add_subdirectory(src/enet)
+add_subdirectory(src/thirdparty/enet)
 
 option(BUILD_CLIENT "Enable building the client" ON)
 option(BUILD_SERVER "Enable building the dedicated server" ON)
