@@ -15,8 +15,9 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
 - [ ] Public domain example game.
 - [ ] Potentially replace GUI with better library.
 
-## Planned Just Things
-- [x] Backwards-compatability with Cube 2 mods/games
+## Planned Features
+- [x] Backwards-compatability with Cube 2 mods/games\
+      (Status on this *may* change in the future).
 
 ## License
 Sauerbraten uses the zLib License.\
