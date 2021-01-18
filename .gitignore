@@ -1,4 +1,7 @@
 *.o
 *.a
 
+# Exclude the directory *i* use to build
 src/build
+# Also temporarily ignore this
+game/packages
