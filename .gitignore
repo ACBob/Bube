@@ -3,7 +3,5 @@
 
 # Exclude the directory *i* use to build
 /build
-# Also temporarily ignore this
-/game/packages
 # Yes I use vscode
 /.vscode/
