@@ -2,6 +2,8 @@
 *.a
 
 # Exclude the directory *i* use to build
-build
+/build
 # Also temporarily ignore this
-game/packages
+/game/packages
+# Yes I use vscode
+/.vscode/
