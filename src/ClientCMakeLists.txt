@@ -1,0 +1,65 @@
+cmake_minimum_required(VERSION 3.16)
+project(BubeClient)
+
+include_directories(include shared engine fpsgame enet/include)
+set(CMAKE_CXX_FLAGS "-O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
+set(clientSources
+	shared/crypto.cpp
+	shared/geom.cpp
+	shared/glemu.cpp
+	shared/stream.cpp
+	shared/tools.cpp
+	shared/zip.cpp
+	engine/3dgui.cpp
+	engine/bih.cpp
+	engine/blend.cpp
+	engine/blob.cpp
+	engine/client.cpp
+	engine/command.cpp
+	engine/console.cpp
+	engine/cubeloader.cpp
+	engine/decal.cpp
+	engine/dynlight.cpp
+	engine/glare.cpp
+	engine/grass.cpp
+	engine/lightmap.cpp
+	engine/main.cpp
+	engine/material.cpp
+	engine/menus.cpp
+	engine/movie.cpp
+	engine/normal.cpp
+	engine/octa.cpp
+	engine/octaedit.cpp
+	engine/octarender.cpp
+	engine/physics.cpp
+	engine/pvs.cpp
+	engine/rendergl.cpp
+	engine/rendermodel.cpp
+	engine/renderparticles.cpp
+	engine/rendersky.cpp
+	engine/rendertext.cpp
+	engine/renderva.cpp
+	engine/server.cpp
+	engine/serverbrowser.cpp
+	engine/shader.cpp
+	engine/shadowmap.cpp
+	engine/sound.cpp
+	engine/texture.cpp
+	engine/water.cpp
+	engine/world.cpp
+	engine/worldio.cpp
+	fpsgame/ai.cpp
+	fpsgame/client.cpp
+	fpsgame/entities.cpp
+	fpsgame/fps.cpp
+	fpsgame/monster.cpp
+	fpsgame/movable.cpp
+	fpsgame/render.cpp
+	fpsgame/scoreboard.cpp
+	fpsgame/server.cpp
+	fpsgame/waypoint.cpp
+	fpsgame/weapon.cpp
+)
+
+add_executable(client ${clientSources})
+target_link_libraries(client enet SDL2 z rt GL SDL2_mixer SDL2_image)

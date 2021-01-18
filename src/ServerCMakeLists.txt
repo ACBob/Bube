@@ -1,0 +1,20 @@
+cmake_minimum_required(VERSION 3.16)
+project(BubeDedicatedServer)
+
+include_directories(include shared engine fpsgame enet/include)
+set(CMAKE_CXX_FLAGS "-O3 -fomit-frame-pointer -ffast-math -Wall -fsigned-char -fno-exceptions -fno-rtti")
+
+set(serverSources
+    shared/crypto.cpp
+	shared/stream.cpp
+	shared/tools.cpp
+	engine/command.cpp
+	engine/server.cpp
+	engine/worldio.cpp
+	fpsgame/entities.cpp
+	fpsgame/server.cpp
+)
+
+add_definitions( -DSTANDALONE )
+add_executable(server ${serverSources})
+target_link_libraries(server enet z)
