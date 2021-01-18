@@ -5,7 +5,6 @@
 cube *worldroot = newcubes(F_SOLID);
 int allocnodes = 0;
 
-
 cubeext *growcubeext(cubeext *old, int maxverts)
 {
     cubeext *ext = (cubeext *)new uchar[sizeof(cubeext) + maxverts*sizeof(vertinfo)];
@@ -52,8 +51,8 @@ cubeext *newcubeext(cube &c, int maxverts, bool init)
 
 cube *newcubes(uint face, int mat)
 {
-    cube *c = new cube[MAP_ROOT_CUBE_COUNT];
-    loopi(MAP_ROOT_CUBE_COUNT)
+    cube *c = new cube[8];
+    loopi(8)
     {
         c->children = NULL;
         c->ext = NULL;
@@ -65,20 +64,20 @@ cube *newcubes(uint face, int mat)
         c++;
     }
     allocnodes++;
-    return c-MAP_ROOT_CUBE_COUNT;
+    return c-8;
 }
 
 int familysize(const cube &c)
 {
     int size = 1;
-    if(c.children) loopi(MAP_ROOT_CUBE_COUNT) size += familysize(c.children[i]);
+    if(c.children) loopi(8) size += familysize(c.children[i]);
     return size;
 }
 
 void freeocta(cube *c)
 {
     if(!c) return;
-    loopi(MAP_ROOT_CUBE_COUNT) discardchildren(c[i]);
+    loopi(8) discardchildren(c[i]);
     delete[] c;
     allocnodes--;
 }
@@ -108,7 +107,7 @@ void discardchildren(cube &c, bool fixtex, int depth)
     if(c.children)
     {
         uint filled = F_EMPTY;
-        loopi(MAP_ROOT_CUBE_COUNT) 
+        loopi(8) 
         {
             discardchildren(c.children[i], fixtex, depth+1);
             filled |= c.children[i].faces[0];
@@ -174,7 +173,7 @@ bool isvalidcube(const cube &c)
 {
     clipplanes p;
     genclipplanes(c, ivec(0, 0, 0), 256, p);
-    loopi(MAP_ROOT_CUBE_COUNT) // test that cube is convex
+    loopi(8) // test that cube is convex
     {
         vec v = p.v[i];
         loopj(p.size) if(p.p[j].dist(v)>1e-3f) return false;
@@ -184,7 +183,7 @@ bool isvalidcube(const cube &c)
 
 void validatec(cube *c, int size)
 {
-    loopi(MAP_ROOT_CUBE_COUNT)
+    loopi(8)
     {
         if(c[i].children)
         {
@@ -318,7 +317,7 @@ void forcemip(cube &c, bool fixtex)
     cube *ch = c.children;
     emptyfaces(c);
 
-    loopi(MAP_ROOT_CUBE_COUNT) loopj(MAP_ROOT_CUBE_COUNT)
+    loopi(8) loopj(8)
     {
         int n = i^(j==3 ? 4 : (j==4 ? 3 : j));
         if(!isempty(ch[n])) // breadth first search for cube near vert
@@ -326,7 +325,7 @@ void forcemip(cube &c, bool fixtex)
             ivec v;
             getcubevector(ch[n], i, v);
             // adjust vert to parent size
-            setcubevector(c, i, ivec(n, v, MAP_ROOT_CUBE_COUNT).shr(1));
+            setcubevector(c, i, ivec(n, v, 8).shr(1));
             break;
         }
     }
@@ -340,25 +339,25 @@ static int midedge(const ivec &a, const ivec &b, int xd, int yd, bool &perfect)
     int ax = a[xd], ay = a[yd], bx = b[xd], by = b[yd];
     if(ay==by) return ay;
     if(ax==bx) { perfect = false; return ay; }
-    bool crossx = (ax<MAP_ROOT_CUBE_COUNT && bx>MAP_ROOT_CUBE_COUNT) || (ax>MAP_ROOT_CUBE_COUNT && bx<MAP_ROOT_CUBE_COUNT);
-    bool crossy = (ay<MAP_ROOT_CUBE_COUNT && by>MAP_ROOT_CUBE_COUNT) || (ay>MAP_ROOT_CUBE_COUNT && by<MAP_ROOT_CUBE_COUNT);
-    if(crossy && !crossx) { midedge(a,b,yd,xd,perfect); return MAP_ROOT_CUBE_COUNT; } // to test perfection
-    if(ax<=MAP_ROOT_CUBE_COUNT && bx<=MAP_ROOT_CUBE_COUNT) return ax>bx ? ay : by;
-    if(ax>=MAP_ROOT_CUBE_COUNT && bx>=MAP_ROOT_CUBE_COUNT) return ax<bx ? ay : by;
-    int risex = (by-ay)*(MAP_ROOT_CUBE_COUNT-ax)*256;
+    bool crossx = (ax<8 && bx>8) || (ax>8 && bx<8);
+    bool crossy = (ay<8 && by>8) || (ay>8 && by<8);
+    if(crossy && !crossx) { midedge(a,b,yd,xd,perfect); return 8; } // to test perfection
+    if(ax<=8 && bx<=8) return ax>bx ? ay : by;
+    if(ax>=8 && bx>=8) return ax<bx ? ay : by;
+    int risex = (by-ay)*(8-ax)*256;
     int s = risex/(bx-ax);
     int y = s/256 + ay;
     if(((abs(s)&0xFF)!=0) || // ie: rounding error
-        (crossy && y!=MAP_ROOT_CUBE_COUNT) ||
+        (crossy && y!=8) ||
         (y<0 || y>16)) perfect = false;
-    return crossy ? MAP_ROOT_CUBE_COUNT : min(max(y, 0), 16);
+    return crossy ? 8 : min(max(y, 0), 16);
 }
 
 static inline bool crosscenter(const ivec &a, const ivec &b, int xd, int yd)
 {
     int ax = a[xd], ay = a[yd], bx = b[xd], by = b[yd];
-    return (((ax <= MAP_ROOT_CUBE_COUNT && bx <= MAP_ROOT_CUBE_COUNT) || (ax >= MAP_ROOT_CUBE_COUNT && bx >= MAP_ROOT_CUBE_COUNT)) &&
-            ((ay <= MAP_ROOT_CUBE_COUNT && by <= MAP_ROOT_CUBE_COUNT) || (ay >= MAP_ROOT_CUBE_COUNT && by >= MAP_ROOT_CUBE_COUNT))) ||
+    return (((ax <= 8 && bx <= 8) || (ax >= 8 && bx >= 8)) &&
+            ((ay <= 8 && by <= 8) || (ay >= 8 && by >= 8))) ||
            (ax + bx == 16 && ay + by == 16);
 }
 
@@ -369,7 +368,7 @@ bool subdividecube(cube &c, bool fullcheck, bool brighten)
 	if(isempty(c) || isentirelysolid(c))
     {
 		c.children = newcubes(isempty(c) ? F_EMPTY : F_SOLID, c.material);
-        loopi(MAP_ROOT_CUBE_COUNT)
+        loopi(8)
         {
             loopl(6) c.children[i].texture[l] = c.texture[l];
             if(brighten && !isempty(c)) brightencube(c.children[i]);
@@ -378,8 +377,8 @@ bool subdividecube(cube &c, bool fullcheck, bool brighten)
     }
     cube *ch = c.children = newcubes(F_SOLID, c.material);
     bool perfect = true;
-    ivec v[MAP_ROOT_CUBE_COUNT];
-    loopi(MAP_ROOT_CUBE_COUNT)
+    ivec v[8];
+    loopi(8)
     {
         getcubevector(c, i, v[i]);
         v[i].mul(2);
@@ -418,7 +417,7 @@ bool subdividecube(cube &c, bool fullcheck, bool brighten)
             perfect = p2 && (c1 == c2 || crosscenter(v01, v10, C[d], R[d]));
         }    
 
-        loopi(MAP_ROOT_CUBE_COUNT)
+        loopi(8)
         {
             ch[i].texture[j] = c.texture[j];
             int rd = (i>>R[d])&1, cd = (i>>C[d])&1, dd = (i>>D[d])&1;
@@ -430,12 +429,12 @@ bool subdividecube(cube &c, bool fullcheck, bool brighten)
     }
 
     validatec(ch);
-    if(fullcheck) loopi(MAP_ROOT_CUBE_COUNT) if(!isvalidcube(ch[i])) // not so good...
+    if(fullcheck) loopi(8) if(!isvalidcube(ch[i])) // not so good...
     {
         emptyfaces(ch[i]);
         perfect=false;
     }
-    if(brighten) loopi(MAP_ROOT_CUBE_COUNT) if(!isempty(ch[i])) brightencube(ch[i]);
+    if(brighten) loopi(8) if(!isempty(ch[i])) brightencube(ch[i]);
     return perfect;
 }
 
@@ -473,7 +472,7 @@ bool remip(cube &c, const ivec &co, int size)
     else if((remipprogress++&0xFFF)==1) renderprogress(float(remipprogress)/remiptotal, "remipping...");
 
     bool perfect = true;
-    loopi(MAP_ROOT_CUBE_COUNT)
+    loopi(8)
     {
         ivec o(i, co, size);
         if(!remip(ch[i], o, size>>1)) perfect = false;
@@ -487,18 +486,18 @@ bool remip(cube &c, const ivec &co, int size)
     if(size<<1 > 0x1000) return false;
 
     ushort mat = MAT_AIR;
-    loopi(MAP_ROOT_CUBE_COUNT)
+    loopi(8)
     {
         mat = ch[i].material;
         if((mat&MATF_CLIP) == MAT_NOCLIP || mat&MAT_ALPHA)
         {
             if(i > 0) return false;
-            while(++i < MAP_ROOT_CUBE_COUNT) if(ch[i].material != mat) return false;
+            while(++i < 8) if(ch[i].material != mat) return false;
             break;
         }
         else if(!isentirelysolid(ch[i]))
         {
-            while(++i < MAP_ROOT_CUBE_COUNT)
+            while(++i < 8)
             {
                 int omat = ch[i].material;
                 if(isentirelysolid(ch[i]) ? (omat&MATF_CLIP) == MAT_NOCLIP || omat&MAT_ALPHA : mat != omat) return false;
@@ -516,7 +515,7 @@ bool remip(cube &c, const ivec &co, int size)
 
     cube *nh = n.children;
     uchar vis[6] = {0, 0, 0, 0, 0, 0};
-    loopi(MAP_ROOT_CUBE_COUNT)
+    loopi(8)
     {
         if(ch[i].faces[0] != nh[i].faces[0] ||
            ch[i].faces[1] != nh[i].faces[1] ||
@@ -556,7 +555,7 @@ void mpremip(bool local)
     if(local) game::edittrigger(sel, EDIT_REMIP);
     remipprogress = 1;
     remiptotal = allocnodes;
-    loopi(MAP_ROOT_CUBE_COUNT)
+    loopi(8)
     {
         ivec o(i, ivec(0, 0, 0), worldsize>>1);
         remip(worldroot[i], o, worldsize>>2);
@@ -586,9 +585,9 @@ void genvertp(cube &c, ivec &p1, ivec &p2, ivec &p3, plane &pl, bool solid = fal
 
     int coord = p1[dim];
     ivec v1(p1), v2(p2), v3(p3);
-    v1[dim] = solid ? coord*MAP_ROOT_CUBE_COUNT : edgeval(c, p1, dim, coord);
-    v2[dim] = solid ? coord*MAP_ROOT_CUBE_COUNT : edgeval(c, p2, dim, coord);
-    v3[dim] = solid ? coord*MAP_ROOT_CUBE_COUNT : edgeval(c, p3, dim, coord);
+    v1[dim] = solid ? coord*8 : edgeval(c, p1, dim, coord);
+    v2[dim] = solid ? coord*8 : edgeval(c, p2, dim, coord);
+    v3[dim] = solid ? coord*8 : edgeval(c, p3, dim, coord);
 
     pl.toplane(vec(v1), vec(v2), vec(v3));
 }
@@ -610,9 +609,9 @@ static bool threeplaneintersect(plane &pl1, plane &pl2, plane &pl3, vec &dest)
 
 static void genedgespanvert(ivec &p, cube &c, vec &v)
 {
-    ivec p1(MAP_ROOT_CUBE_COUNT-p.x, p.y, p.z);
-    ivec p2(p.x, MAP_ROOT_CUBE_COUNT-p.y, p.z);
-    ivec p3(p.x, p.y, MAP_ROOT_CUBE_COUNT-p.z);
+    ivec p1(8-p.x, p.y, p.z);
+    ivec p2(p.x, 8-p.y, p.z);
+    ivec p3(p.x, p.y, 8-p.z);
 
     plane plane1, plane2, plane3;
     genvertp(c, p, p1, p2, plane1);
@@ -626,9 +625,9 @@ static void genedgespanvert(ivec &p, cube &c, vec &v)
     //ASSERT(v.x>=0 && v.x<=8);
     //ASSERT(v.y>=0 && v.y<=8);
     //ASSERT(v.z>=0 && v.z<=8);
-    v.x = max(0.0f, min((float)MAP_ROOT_CUBE_COUNT, v.x));
-    v.y = max(0.0f, min((float)MAP_ROOT_CUBE_COUNT, v.y));
-    v.z = max(0.0f, min((float)MAP_ROOT_CUBE_COUNT, v.z));
+    v.x = max(0.0f, min(8.0f, v.x));
+    v.y = max(0.0f, min(8.0f, v.y));
+    v.z = max(0.0f, min(8.0f, v.z));
 }
 
 void edgespan2vectorcube(cube &c)
@@ -637,7 +636,7 @@ void edgespan2vectorcube(cube &c)
     cube o = c;
     loop(x, 2) loop(y, 2) loop(z, 2)
     {
-        ivec p(MAP_ROOT_CUBE_COUNT*x, MAP_ROOT_CUBE_COUNT*y, MAP_ROOT_CUBE_COUNT*z);
+        ivec p(8*x, 8*y, 8*z);
         vec v;
         genedgespanvert(p, o, v);
 
@@ -647,10 +646,10 @@ void edgespan2vectorcube(cube &c)
     }
 }
 
-const ivec cubecoords[MAP_ROOT_CUBE_COUNT] = // verts of bounding cube
+const ivec cubecoords[8] = // verts of bounding cube
 {
 #define GENCUBEVERT(n, x, y, z) ivec(x, y, z),
-    GENCUBEVERTS(0, MAP_ROOT_CUBE_COUNT, 0, MAP_ROOT_CUBE_COUNT, 0, MAP_ROOT_CUBE_COUNT)
+    GENCUBEVERTS(0, 8, 0, 8, 0, 8)
 #undef GENCUBEVERT 
 };
 
@@ -694,7 +693,7 @@ const ivec facecoords[6][4] =
     { v0, v1, v2, v3 },
 #define GENFACEVERT(o, n, x,y,z, xv,yv,zv) \
         ivec(x,y,z)
-    GENFACEVERTS(0, MAP_ROOT_CUBE_COUNT, 0, MAP_ROOT_CUBE_COUNT, 0, MAP_ROOT_CUBE_COUNT, , , , , , )
+    GENFACEVERTS(0, 8, 0, 8, 0, 8, , , , , , )
 #undef GENFACEORIENT
 #undef GENFACEVERT
 };
@@ -777,9 +776,9 @@ int faceconvexity(const vertinfo *verts, int numverts, int size)
          e1 = verts[1].getxyz().sub(v0),
          e2 = verts[2].getxyz().sub(v0),
          n;
-    if(size >= (MAP_ROOT_CUBE_COUNT<<5))
+    if(size >= (8<<5))
     {
-        if(size >= (MAP_ROOT_CUBE_COUNT<<10)) n.cross(e1.shr(10), e2.shr(10));
+        if(size >= (8<<10)) n.cross(e1.shr(10), e2.shr(10));
         else n.cross(e1, e2).shr(10);
     }
     else n.cross(e1, e2);
