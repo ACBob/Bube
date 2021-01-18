@@ -8,6 +8,7 @@ bool nosound = true;
 struct soundsample
 {
     char *name;
+    char *filepath;
     Mix_Chunk *chunk;
 
     soundsample() : name(NULL), chunk(NULL) {}
@@ -412,12 +413,13 @@ bool soundsample::load(bool msg)
 {
     if(chunk) return true;
     if(!name[0]) return false;
+    if(!filepath[0]) return false;
 
     static const char * const exts[] = { "", ".wav", ".ogg" };
     string filename;
     loopi(sizeof(exts)/sizeof(exts[0]))
     {
-        formatstring(filename, "packages/sounds/%s%s", name, exts[i]);
+        formatstring(filename, "packages/sounds/%s%s", filepath, exts[i]);
         if(msg && !i) renderprogress(0, filename);
         path(filename);
         if(fixwav)
@@ -463,14 +465,16 @@ static struct soundtype
         return -1;
     }
 
-    int addslot(const char *name, int vol)
+    int addslot(const char *name, const char *filepath, int vol)
     {
         soundsample *s = samples.access(name);
         if(!s)
         {
             char *n = newstring(name);
+            char *fp = newstring(filepath);
             s = &samples[n];
             s->name = n;
+            s->filepath = fp;
             s->chunk = NULL;
         }
         soundslot *oldslots = slots.getbuf();
@@ -488,20 +492,24 @@ static struct soundtype
         return oldlen;
     }
 
-    int addsound(const char *name, int vol, int maxuses = 0)
+    int addsound(const char *name, const char *filepath, int vol, int maxuses = 0)
     {
         soundconfig &s = configs.add();
-        s.slots = addslot(name, vol);
+        s.slots = addslot(name, filepath, vol);
         s.numslots = 1;
         s.maxuses = maxuses;
         return configs.length()-1;
     }
 
-    void addalt(const char *name, int vol)
+    void addalt(const char *name, const char *filepath, int vol)
     {
         if(configs.empty()) return;
-        addslot(name, vol);
-        configs.last().numslots++;
+
+        int soundPos = findsound(name, vol); // If we don't ACTUALLY have a sound registered with that name, give up
+        if (soundPos == -1) return;
+
+        addslot(name, filepath, vol);
+        configs[soundPos].numslots++;
     }
 
     void clear()
@@ -537,17 +545,17 @@ static struct soundtype
     }
 } gamesounds, mapsounds;
 
-void registersound(char *name, int *vol) { intret(gamesounds.addsound(name, *vol, 0)); }
-COMMAND(registersound, "si");
+void registersound(char *name, char *filepath, int *vol) { intret(gamesounds.addsound(name, filepath, *vol, 0)); }
+COMMAND(registersound, "ssi");
 
-void mapsound(char *name, int *vol, int *maxuses) { intret(mapsounds.addsound(name, *vol, *maxuses < 0 ? 0 : max(1, *maxuses))); }
-COMMAND(mapsound, "sii");
+void mapsound(char *name, char *filepath, int *vol, int *maxuses) { intret(mapsounds.addsound(name, filepath, *vol, *maxuses < 0 ? 0 : max(1, *maxuses))); }
+COMMAND(mapsound, "ssii");
 
-void altsound(char *name, int *vol) { gamesounds.addalt(name, *vol); }
-COMMAND(altsound, "si");
+void altsound(char *name, char *filepath, int *vol) { gamesounds.addalt(name, filepath, *vol); }
+COMMAND(altsound, "ssi");
 
-void altmapsound(char *name, int *vol) { mapsounds.addalt(name, *vol); }
-COMMAND(altmapsound, "si");
+void altmapsound(char *name, char *filepath, int *vol) { mapsounds.addalt(name, filepath, *vol); }
+COMMAND(altmapsound, "ssi");
 
 ICOMMAND(numsounds, "", (), intret(gamesounds.configs.length()));
 ICOMMAND(nummapsounds, "", (), intret(mapsounds.configs.length()));
@@ -828,7 +836,8 @@ int playsoundname(const char *s, const vec *loc, int vol, int flags, int loops, 
 { 
     if(!vol) vol = 100;
     int id = gamesounds.findsound(s, vol);
-    if(id < 0) id = gamesounds.addsound(s, vol);
+    // In this instance, the name attempting to be played is assumed to be the filepath as well. Keeps compatability.
+    if(id < 0) id = gamesounds.addsound(s, s, vol);
     return playsound(id, loc, NULL, flags, loops, fade, chanid, radius, expire);
 }
 
