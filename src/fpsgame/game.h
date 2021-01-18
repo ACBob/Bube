@@ -275,11 +275,16 @@ static const int msgsizes[] =               // size inclusive message token, 0 f
     N_DEMOPACKET, 0,
     -1
 };
-
+/* // Default Values
 #define SAUERBRATEN_LANINFO_PORT 28784
 #define SAUERBRATEN_SERVER_PORT 28785
 #define SAUERBRATEN_SERVINFO_PORT 28786
 #define SAUERBRATEN_MASTER_PORT 28787
+*/
+#define SAUERBRATEN_LANINFO_PORT 19200
+#define SAUERBRATEN_SERVER_PORT 19201
+#define SAUERBRATEN_SERVINFO_PORT 19202
+#define SAUERBRATEN_MASTER_PORT 19203
 #define PROTOCOL_VERSION 260            // bump when protocol changes
 #define DEMO_VERSION 1                  // bump when demo format changes
 #define DEMO_MAGIC "SAUERBRATEN_DEMO"
