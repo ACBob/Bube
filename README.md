@@ -6,19 +6,21 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
  * Restructured the repository.
  * Switched to GIT from SVN.
  * Switched to CMake :feelsgood:
+ * Sounds have been converted from IDs to Names. Internally, the sound system still uses ids, but the rest of the engine uses names. Much better, IMO.
 
-## Planned Changes
+## Planned Changes (No Order)
 - [ ] Increase size of maps.
 - [ ] Increase hard-coded limits in general.
 - [ ] Remove some hard-coded stuff.
+- [ ] Specifically remove hard-coded sound names.
 - [ ] Add a scripting language.
 - [ ] Public domain example game.
 - [ ] Potentially replace GUI with better library.\
       *Although all the GUIs are 3D. This is an end-of-the-road type of deal.*
 
 ## Planned Features
-- [x] Backwards-compatability with Cube 2 mods/games\
-      (Status on this *may* change in the future).
+- [] Backwards-compatability with Cube 2 mods/games\
+      **Note:** I am currently unsure, due to changes in the sound system, if there is still compatability with ALL mods/games.
 
 ## License
 Sauerbraten uses the zLib License.\
