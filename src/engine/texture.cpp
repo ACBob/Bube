@@ -3649,9 +3649,25 @@ Texture *texturemissing()
     ImageData s;
     SDL_Surface *surface;
 
+    // TODO: these squares seem a bit verbose
+    SDL_Rect square1;
+    SDL_Rect square2;
+
+    square1.x = square1.y = 0;
+    square1.w = square1.h = MISSINGTEX_RES/2;
+    square2.x = square2.y = MISSINGTEX_RES/2;
+    square2.w = square2.h = MISSINGTEX_RES;
+
+    SDL_Rect squares[2] = {square1, square2};
+
 
     surface = SDL_CreateRGBSurface(0, MISSINGTEX_RES, MISSINGTEX_RES, 32, 0, 0, 0, 0);
-    s.wrap(surface);
+    // Fill it with magenta
+    SDL_FillRect(surface, NULL, SDL_MapRGBA(surface->format, 255, 0, 255, 255));
+    // Make the checkerboard pattern, á la source:tm:
+    SDL_FillRects(surface, squares, 2, SDL_MapRGBA(surface->format, 0, 0, 0, 255));
+
+    s.wrap(fixsurfaceformat(surface));
 
     return newtexture(NULL, "", s, 0, true, false, false, 0);
 }

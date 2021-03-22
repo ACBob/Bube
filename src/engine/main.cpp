@@ -1274,11 +1274,11 @@ int main(int argc, char **argv)
     // if(!notexture) fatal("could not find core textures");
     if(!notexture) {
         notexture = texturemissing();
-        logoutf("could not load missing texture, generated instead.");
+        conoutf(CON_WARN, "could not load missing texture, generated instead.");
     }
 
     logoutf("init: console");
-    if(!execfile("data/stdlib.cfg", false)) fatal("cannot find data files (you are running from the wrong folder, try .bat file in the main folder)");   // this is the first file we load.
+    if(!execfile("data/stdlib.cfg", false)) fatal("cannot find data files");   // this is the first file we load.
     if(!execfile("data/font.cfg", false)) fatal("cannot find font definitions");
     if(!setfont("default")) fatal("no default font specified");
 
