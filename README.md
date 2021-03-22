@@ -7,6 +7,7 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
  * Switched to GIT from SVN.
  * Switched to CMake :feelsgood:
  * Sounds have been converted from IDs to Names. Internally, the sound system still uses ids, but the rest of the engine uses names. Much better, IMO.
+ * The error texture can now be generated at run-time, removing the need to have a `notexture.png`. Indeed, the base game here does not supply one.
 
 ## Planned Changes (No Order)
 - [ ] Increase size of maps.
