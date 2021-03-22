@@ -5,6 +5,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -fomit-frame-pointer -ffast-math -Wa
 
 ## enet
 add_subdirectory(src/thirdparty/enet)
+## LuaBridge
+add_subdirectory(src/thirdparty/LuaBridge)
 
 option(BUILD_CLIENT "Enable building the client" ON)
 option(BUILD_SERVER "Enable building the dedicated server" ON)

@@ -46,6 +46,7 @@ set(clientSources
 	engine/water.cpp
 	engine/world.cpp
 	engine/worldio.cpp
+	engine/luaapi.cpp
 	fpsgame/ai.cpp
 	fpsgame/client.cpp
 	fpsgame/entities.cpp
@@ -62,6 +63,6 @@ list(TRANSFORM clientSources PREPEND "src/")
 
 add_executable(client ${clientSources})
 
-target_include_directories(client PUBLIC src/include src/shared src/engine src/fpsgame src/thirdparty/enet/include)
-target_link_libraries(client enet SDL2 z rt GL SDL2_mixer SDL2_image)
+target_include_directories(client PUBLIC src/include src/shared src/engine src/fpsgame src/thirdparty/enet/include src/thirdparty/LuaBridge/Source)
+target_link_libraries(client LuaBridge lua5.1 enet SDL2 z rt GL SDL2_mixer SDL2_image)
 
