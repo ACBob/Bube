@@ -94,6 +94,7 @@ extern void compactvslot(VSlot &vs);
 extern int compactvslots();
 extern void reloadtextures();
 extern void cleanuptextures();
+extern Texture *texturemissing();
 
 // shadowmap
 

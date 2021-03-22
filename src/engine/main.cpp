@@ -1271,7 +1271,11 @@ int main(int argc, char **argv)
     gl_checkextensions();
     gl_init();
     notexture = textureload("packages/textures/notexture.png");
-    if(!notexture) fatal("could not find core textures");
+    // if(!notexture) fatal("could not find core textures");
+    if(!notexture) {
+        notexture = texturemissing();
+        logoutf("could not load missing texture, generated instead.");
+    }
 
     logoutf("init: console");
     if(!execfile("data/stdlib.cfg", false)) fatal("cannot find data files (you are running from the wrong folder, try .bat file in the main folder)");   // this is the first file we load.

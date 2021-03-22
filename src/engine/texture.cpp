@@ -3642,3 +3642,16 @@ void mergenormalmaps(char *heightfile, char *normalfile) // jpg/png/tga + tga ->
 COMMAND(flipnormalmapy, "ss");
 COMMAND(mergenormalmaps, "ss");
 
+// generate a checkerboard pattern progmatically
+#define MISSINGTEX_RES 16
+Texture *texturemissing()
+{
+    ImageData s;
+    SDL_Surface *surface;
+
+
+    surface = SDL_CreateRGBSurface(0, MISSINGTEX_RES, MISSINGTEX_RES, 32, 0, 0, 0, 0);
+    s.wrap(surface);
+
+    return newtexture(NULL, "", s, 0, true, false, false, 0);
+}
