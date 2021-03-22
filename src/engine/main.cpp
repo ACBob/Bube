@@ -1285,6 +1285,9 @@ int main(int argc, char **argv)
     inbetweenframes = true;
     renderbackground("initializing...");
 
+    logoutf("init: Lua");
+    if(!init_luaapi()) fatal("cannot init Lua");
+
     logoutf("init: world");
     camera1 = player = game::iterdynents(0);
     emptymap(0, true, NULL, false);

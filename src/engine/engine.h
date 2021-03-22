@@ -3,6 +3,7 @@
 
 #include "cube.h"
 #include "world.h"
+#include "luaapi.h"
 
 #ifndef STANDALONE
 
@@ -607,6 +608,10 @@ namespace recorder
     extern void capture(bool overlay = true);
     extern void cleanup();
 }
+
+// Lua api
+extern lua_State *l;
+extern bool init_luaapi();
 
 #endif
 

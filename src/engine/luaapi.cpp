@@ -1,3 +1,16 @@
-// Implements the Lua stuff.
+// Does the Lua!
+#include "luaapi.h"
 
-#include "lua5.1/lua.hpp"
+// The global Lua state.
+lua_State *l = 0;
+
+
+bool init_luaapi() {
+	// set up a new state
+	l = luaL_newstate();
+
+	luaL_loadfile(l, "test.lua");
+	lua_call(l, 0, 0);
+
+	return true;
+}
