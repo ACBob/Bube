@@ -8,13 +8,15 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
  * Switched to CMake :feelsgood:
  * Sounds have been converted from IDs to Names. Internally, the sound system still uses ids, but the rest of the engine uses names. Much better, IMO.
  * The error texture can now be generated at run-time, removing the need to have a `notexture.png`. Indeed, the base game here does not supply one.
+ * Added some mock Lua 5.1 support, but no mappings. To test a lua file, run `/luadofile <fp>`.
 
 ## Planned Changes (No Order)
 - [ ] Increase size of maps.
 - [ ] Increase hard-coded limits in general.
 - [ ] Remove some hard-coded stuff.
 - [ ] Specifically remove hard-coded sound names.
-- [ ] Add a scripting language.
+- [x] Add a scripting language.\
+      *Lua 5.1!*
 - [ ] Public domain example game.
 - [ ] Potentially replace GUI with better library.\
       *Although all the GUIs are 3D. This is an end-of-the-road type of deal.*
@@ -51,3 +53,5 @@ freely, subject to the following restrictions:
 
 Additionally, Sauerbraten (and by extension Bube) uses the ENet Network Library.\
 ENet is licensed under the MIT License, and is compatible with the zLib License.
+
+[Lua](https://www.lua.org/license.html) is licensed under the MIT license, but Bube does not provide sources for it. It is up to you to install and make available the Lua 5.1 sources.
