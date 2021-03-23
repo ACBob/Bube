@@ -18,4 +18,4 @@ add_executable(server ${serverSources})
 
 target_include_directories(server PUBLIC src/include src/shared src/engine src/psgame src/thirdparty/enet/include)
 target_compile_definitions( server PUBLIC -DSTANDALONE )
-target_link_libraries(server LuaBridge lua5.1 enet z)
+target_link_libraries(server lua5.1 enet z)
