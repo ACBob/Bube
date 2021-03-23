@@ -1286,7 +1286,7 @@ int main(int argc, char **argv)
     renderbackground("initializing...");
 
     logoutf("init: Lua");
-    if(!init_luaapi()) fatal("cannot init Lua");
+    if(!init_luaapi()) fatal("cannot init Lua:\n%s", luaapi_geterror());
 
     logoutf("init: world");
     camera1 = player = game::iterdynents(0);

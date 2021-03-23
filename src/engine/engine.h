@@ -610,8 +610,9 @@ namespace recorder
 }
 
 // Lua api
-extern lua_State *l;
+// extern lua_State *l;
 extern bool init_luaapi();
+extern const char* luaapi_geterror();   
 
 #endif
 
