@@ -28,6 +28,7 @@ COMMAND(luadofile, "s");
 
 // Some lua functions.
 // Intended to only be called from lua!
+// Most other bube namespace functions are implemented in builtin.lua.
 extern "C" int lualog(lua_State *l) {
 	const char *msg = lua_tostring(l, 1);
 	
@@ -56,6 +57,8 @@ bool init_luaapi() {
 	}
 	lua_setglobal(l, "bube");
 
+	// now run builtin.lua
+	if (!luaapi_dofile("script/builtin.lua", true)) return false;
 
 	return true;
 }

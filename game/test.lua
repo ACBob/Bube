@@ -1,1 +1,0 @@
-bube.log("Hello, World!")
