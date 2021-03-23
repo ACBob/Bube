@@ -1,1 +1,1 @@
-print("Lua Pooa")
+log("Hello, World!")
