@@ -613,6 +613,7 @@ namespace recorder
 // extern lua_State *l;
 extern bool init_luaapi();
 extern const char* luaapi_geterror();   
+extern bool luaapi_dofile(const char *fp);
 
 #endif
 
