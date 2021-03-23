@@ -11,15 +11,11 @@ const char* luaapi_geterror() {
 
 bool luaapi_dofile(const char *fp, bool msg)
 {
-	int result;
-	result = luaL_loadfile(l, fp);
-	if (result) // 0 -> OK
+	if (luaL_dofile(l, fp)) // 0 -> OK, if there's an error the return value != 0
 	{
 		if (msg) conoutf(CON_ERROR, "LUA ERROR:\n%s",luaapi_geterror());
 		return false;
 	}
-
-	lua_call(l, 0, 0);
 
 	return true;
 }
@@ -49,8 +45,17 @@ bool init_luaapi() {
 
 	luaL_openlibs(l); // Open all libraries
 
-	// Expose the lua api functions
-	lua_register(l, "log", lualog);
+	// create the bube table/namespace
+	lua_newtable(l);
+	{
+		// Expose the lua api functions
+		lua_pushliteral(l, "log");
+		lua_pushcfunction(l, lualog);
+
+		lua_settable(l, -3);
+	}
+	lua_setglobal(l, "bube");
+
 
 	return true;
 }

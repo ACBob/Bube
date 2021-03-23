@@ -1,1 +1,1 @@
-log("Hello, World!")
+bube.log("Hello, World!")
