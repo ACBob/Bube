@@ -51,6 +51,8 @@ struct font
     ~font() { DELETEA(name); }
 };
 
+extern bool init_fonts();
+
 #define MINRESW 640
 #define MINRESH 480
 // Get things to shut up while we destroy their world

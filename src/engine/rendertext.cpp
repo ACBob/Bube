@@ -1,7 +1,17 @@
 #include "engine.h"
 
-#include <ft2build.h>
+#include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
+
+FT_Library ft;
+bool init_fonts()
+{
+    if(FT_Init_FreeType(&ft))
+    {
+        return false;
+    }
+    return true;
+}
 
 void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 {
