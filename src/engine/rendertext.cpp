@@ -44,7 +44,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
     unsigned char c;
     for (c = 0; c < 128; c++) // hehe c++
     {
-        conoutf(CON_DEBUG, "%c", c);
+        // conoutf(CON_DEBUG, "%c", c);
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
             conoutf(CON_WARN, "Font is missing glpyh %c.", c);
@@ -66,6 +66,10 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
             GL_UNSIGNED_BYTE,
             face->glyph->bitmap.buffer
         );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         font::charinfo &cinfo = f->chars.add();
         cinfo.tex = texid;
@@ -73,7 +77,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
         cinfo.y = face->glyph->bitmap_top;
         cinfo.w = face->glyph->bitmap.width;
         cinfo.h = face->glyph->bitmap.rows;
-        cinfo.advance = face->glyph->advance.x; // TODO: use advance value
+        cinfo.advance = face->glyph->advance.x;
     }
 
     FT_Done_Face(face);
@@ -212,18 +216,15 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 
     gle::deftexcoord0();
 
-    gle::begin(GL_QUADS);
-
     float x = left;
     float y = top;
 
     int i;
     for(i = 0; str[i]; i++)
     {
-        char c = uchar(str[i]);
+        i++;
 
-        // go away null
-        if (c == NULL) continue;
+        char c = uchar(str[i]);
         
         // Test for special characters, like newlines
         if (c == *(unsigned char *)"\n")
@@ -235,25 +236,25 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 
 
         if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
-        font::charinfo cinfo = curfont->getchar(c);
+        font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
 
         float x1 = x + cinfo.w;
         float y1 = y + cinfo.h;
 
-        glBindTexture(GL_TEXTURE_2D, cinfo.tex);
+        gle::begin(GL_QUADS);
+            glBindTexture(GL_TEXTURE_2D, cinfo.tex);
 
-        gle::attribf(x, y);   gle::attribf(0,0);
-        gle::attribf(x1, y);  gle::attribf(1,0);
-        gle::attribf(x1, y1); gle::attribf(1,1);
-        gle::attribf(x, y1);  gle::attribf(0,1);
+            gle::attribf(x, y);   gle::attribf(0,0);
+            gle::attribf(x1, y);  gle::attribf(1,0);
+            gle::attribf(x1, y1); gle::attribf(1,1);
+            gle::attribf(x, y1);  gle::attribf(0,1);
+        
+        gle::end();
 
         // For some reason the value here isn't in pixels.
         // WHY? Anyway, we need to bitshift it.
         x += (cinfo.advance >> 6);
-
-        i ++;
     }
-    gle::end();
 }
 
 void reloadfonts()

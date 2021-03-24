@@ -47,12 +47,7 @@ struct font
     vector<unsigned int> texs; // TODO: glue to textures
     vector<charinfo> chars;
     int charoffset, defaultw, defaulth, scale, lineheight;
-
-    charinfo getchar(int c)
-    {
-        return chars[c-charoffset];
-    }
-
+    
     font() : name(NULL) {}
     ~font() { DELETEA(name); }
 };
