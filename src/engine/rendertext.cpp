@@ -3,6 +3,10 @@
 #include <freetype2/ft2build.h>
 #include FT_FREETYPE_H
 
+static hashnameset<font> fonts;
+// TODO: better font setup
+font *curfont = NULL;
+
 FT_Library ft;
 bool init_fonts()
 {
@@ -13,9 +17,62 @@ bool init_fonts()
     return true;
 }
 
+// This was instrumental in writing:
+// https://learnopengl.com/In-Practice/Text-Rendering
 void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 {
+    font *f = &fonts[name];
+    if (!f->name) f->name = newstring(name);
 
+    FT_Face face;
+    if (FT_New_Face(ft, fp, 0, &face))
+    {
+        conoutf(CON_ERROR, "freetype could not load font %s", fp);
+    }
+
+    FT_Set_Pixel_Sizes(face, *(unsigned int*)defaultw, *(unsigned int*)defaulth);
+
+    f->name = name;
+    f->chars.shrink(0);
+
+    unsigned char c;
+    loopi(c)
+    {
+        if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+        {
+            conoutf(CON_WARN, "Font is missing glpyh %c.", c);
+            continue;
+        }
+
+        // TODO: glue to the textures system
+        unsigned int texid;
+        glGenTextures(1, &texid);
+        glBindTexture(GL_TEXTURE_2D, texid);
+        glTexImage2D(
+            GL_TEXTURE_2D,
+            0,
+            GL_RED,
+            face->glyph->bitmap.width,
+            face->glyph->bitmap.rows,
+            0,
+            GL_RED,
+            GL_UNSIGNED_BYTE,
+            face->glyph->bitmap.buffer
+        );
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        font::charinfo cinfo = f->chars.add();
+        cinfo.tex = texid;
+        cinfo.x = face->glyph->bitmap_left;
+        cinfo.y = face->glyph->bitmap_top;
+        cinfo.w = face->glyph->bitmap.width;
+        cinfo.h = face->glyph->bitmap.rows;
+    }
+
+    FT_Done_Face(face);
 }
 
 void fontoffset(char *c)
@@ -53,6 +110,9 @@ COMMAND(fontalias, "ss");
 
 bool setfont(const char *name)
 {
+    font *f = fonts.access(name);
+    if(!f) return false;
+    curfont = f;
     return true;
 }
 
@@ -139,6 +199,28 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 
 void draw_text(const char *str, int left, int top, int r, int g, int b, int a, int cursor, int maxwidth) 
 {
+    bvec color(r,g,b);
+
+    loopi(sizeof(str))
+    {
+        font::charinfo cinfo = curfont->chars[i];
+
+        float x = left;
+        float y = top;
+
+        float w = cinfo.w;
+        float h = cinfo.h;
+
+        float x1 = left + w;
+        float y1 = top + h;
+
+        glBindTexture(GL_TEXTURE_2D, cinfo.tex);
+
+        gle::attribf(x, y); gle::attribf(0,0);
+        gle::attribf(x1, y); gle::attribf(1,0);
+        gle::attribf(x1, y1); gle::attribf(1,1);
+        gle::attribf(x, y1); gle::attribf(0,1);
+    }
 }
 
 void reloadfonts()

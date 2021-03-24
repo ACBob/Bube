@@ -39,11 +39,12 @@ struct font
 {
     struct charinfo
     {
-        short x, y, w, h, offsetx, offsety, advance, tex;
+        short x, y, w, h, offsetx, offsety, advance;
+        unsigned int tex;
     };
 
     char *name;
-    vector<Texture *> texs;
+    vector<unsigned int> texs; // TODO: glue to textures
     vector<charinfo> chars;
     int charoffset, defaultw, defaulth, scale;
 
