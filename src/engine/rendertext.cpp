@@ -63,14 +63,15 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        font::charinfo *cinfo = &f->chars[name];
-        if (!cinfo->name) cinfo->name = newstring(c);
-        cinfo->tex = texid;
-        cinfo->x = face->glyph->bitmap_left;
-        cinfo->y = face->glyph->bitmap_top;
-        cinfo->w = face->glyph->bitmap.width;
-        cinfo->h = face->glyph->bitmap.rows;
-        cinfo->advance = face->glyph->advance.x;
+        font::charinfo cinfo;
+        cinfo.tex = texid;
+        cinfo.x = face->glyph->bitmap_left;
+        cinfo.y = face->glyph->bitmap_top;
+        cinfo.w = face->glyph->bitmap.width;
+        cinfo.h = face->glyph->bitmap.rows;
+        cinfo.advance = face->glyph->advance.x;
+
+        f->chars.add(cinfo);
     }
 
     FT_Done_Face(face);
@@ -215,14 +216,10 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
     while(str[i] != '\0')
     {
         char* c = (char *)str[i];
-        font::charinfo *cinfo = curfont->chars.access(c);
-        if (!cinfo) {
-            conoutf(CON_ERROR, "no charinfo");
-            return;
-        }
+        font::charinfo cinfo = curfont->getchar(c);
 
-        float w = cinfo->w;
-        float h = cinfo->h;
+        float w = cinfo.w;
+        float h = cinfo.h;
 
         float x1 = left + w;
         float y1 = top + h;
@@ -238,7 +235,7 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 
         gle::end();
 
-        x += cinfo->advance;
+        x += cinfo.advance;
 
         i ++;
     }

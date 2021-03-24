@@ -46,8 +46,13 @@ struct font
 
     char *name;
     vector<unsigned int> texs; // TODO: glue to textures
-    hashnameset<charinfo> chars;
+    vector<charinfo> chars;
     int charoffset, defaultw, defaulth, scale;
+
+    charinfo getchar(const char *c)
+    {
+        return chars[10];
+    }
 
     font() : name(NULL) {}
     ~font() { DELETEA(name); }
