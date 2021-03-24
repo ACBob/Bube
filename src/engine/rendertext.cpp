@@ -41,7 +41,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
     FT_Set_Pixel_Sizes(face, *(unsigned int*)defaultw, *(unsigned int*)defaulth);
 
-    f->lineheight = *defaulth + 1; // TODO: find the line height with FreeType
+    f->lineheight = (face->size->metrics.ascender - face->size->metrics.descender) >> 6;
 
     f->chars.shrink(0);
     f->charoffset = 0;
