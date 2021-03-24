@@ -1,7 +1,11 @@
 #include "engine.h"
 
-void newfont(char *name, char *tex, int *defaultw, int *defaulth)
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
+void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 {
+
 }
 
 void fontoffset(char *c)
