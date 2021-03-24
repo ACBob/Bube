@@ -1465,7 +1465,7 @@ static bool texturedata(ImageData &d, const char *tname, Slot::Tex *tex = NULL, 
             }
         }
         else s = loadsurface(file);
-        if(!s) { if(msg) /*conoutf(CON_ERROR, "could not load texture %s", file);*/ return false; }
+        if(!s) { /*if(msg) conoutf(CON_ERROR, "could not load texture %s", file);*/ return false; }
         int bpp = s->format->BitsPerPixel;
         if(bpp%8 || !texformat(bpp/8)) { SDL_FreeSurface(s); conoutf(CON_ERROR, "texture must be 8, 16, 24, or 32 bpp: %s", file); return false; }
         if(max(s->w, s->h) > (1<<12)) { SDL_FreeSurface(s); conoutf(CON_ERROR, "texture size exceeded %dx%d pixels: %s", 1<<12, 1<<12, file); return false; }
