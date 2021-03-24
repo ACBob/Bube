@@ -241,6 +241,7 @@ void text_posf(const char *str, int cursor, float &cx, float &cy, int maxwidth)
 void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 {
     width = 0.0;
+    float cwidth = 0.0;
     height = 0.0;
 
     int i;
@@ -251,8 +252,31 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
         float w, h, ox, oy, adv;
         font_metrics(c, w, h, ox, oy, adv);
 
+        // Test for special characters, like newlines, as they don't take up space.
+        if (c == '\r' || c == '\n')
+        {
+            height += (h + oy);
+
+
+            if (width > cwidth)
+            {
+                cwidth = width;
+            }
+            width = 0.0;
+
+            continue;
+        }
+        else if (c == '\f') // Colour code doesn't take up any space.
+        {
+            continue;
+        }
+
         width += (w + ox + adv);
-        height += (h + oy);
+    }
+
+    if (cwidth > width)
+    {
+        width = cwidth;
     }
 }
 
