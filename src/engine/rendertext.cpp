@@ -83,32 +83,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
     FT_Done_Face(face);
 }
 
-void fontoffset(char *c)
-{
-}
-
-void fontscale(int *scale)
-{
-}
-
-void fonttex(char *s)
-{
-}
-
-void fontchar(int *x, int *y, int *w, int *h, int *offsetx, int *offsety, int *advance)
-{
-}
-
-void fontskip(int *n)
-{
-}
-
 COMMANDN(font, newfont, "ssii");
-COMMAND(fontoffset, "s");
-COMMAND(fontscale, "i");
-COMMAND(fonttex, "s");
-COMMAND(fontchar, "iiiiiii");
-COMMAND(fontskip, "i");
 
 void fontalias(const char *dst, const char *src)
 {
@@ -143,12 +118,6 @@ float text_widthf(const char *str)
 {
     return 16.0;
 }
-
-void tabify(const char *str, int *numtabs)
-{
-}
-
-COMMAND(tabify, "si");
     
 void draw_textf(const char *fstr, int left, int top, ...)
 {
@@ -205,13 +174,11 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 {
 }
 
-#define TEXTTAB (curfont->defaultw * 4)
-
 void draw_text(const char *str, int left, int top, int r, int g, int b, int a, int cursor, int maxwidth) 
 {
     bvec color(r,g,b);
 
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     gle::color(color, a);
     gle::defvertex(2);
@@ -230,8 +197,8 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         // Test for special characters, like newlines
         if (c == *(unsigned char *)"\n")
         {
-            y += curfont->lineheight;
             x = left;
+            y += curfont->lineheight;
             continue;
         }
 
