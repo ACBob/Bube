@@ -78,8 +78,8 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
         font::charinfo &cinfo = f->chars.add();
         cinfo.tex = texid;
-        cinfo.x = face->glyph->bitmap_left;
-        cinfo.y = face->glyph->bitmap_top;
+        cinfo.offsetx = face->glyph->bitmap_left;
+        cinfo.offsety = face->glyph->bitmap_top;
         cinfo.w = face->glyph->bitmap.width;
         cinfo.h = face->glyph->bitmap.rows;
         cinfo.advance = face->glyph->advance.x;
@@ -135,19 +135,19 @@ static float draw_char(char c, float x, float y, float scale)
     if (!curfont->chars.inrange(c-curfont->charoffset)) return 0.0;
     font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
 
-    float x1 = x + cinfo.x;
-    float y1 = y - (cinfo.h - cinfo.y);
+    float x1 = x + cinfo.offsetx;
+    float y1 = y - (cinfo.h - cinfo.offsety);
 
-    float x2 = x1 + cinfo.w;
-    float y2 = y1 + cinfo.h;
+    float w = cinfo.w;
+    float h = cinfo.h;
 
     gle::begin(GL_QUADS);
         glBindTexture(GL_TEXTURE_2D, cinfo.tex);
 
         gle::attribf(x1, y1);  gle::attribf(0,0);
-        gle::attribf(x2, y1);  gle::attribf(1,0);
-        gle::attribf(x2, y2);  gle::attribf(1,1);
-        gle::attribf(x1, y2);  gle::attribf(0,1);
+        gle::attribf(x1 + w, y1);  gle::attribf(1,0);
+        gle::attribf(x1 + w, y1 + h);  gle::attribf(1,1);
+        gle::attribf(x1, y1 + h);  gle::attribf(0,1);
 
     gle::end();
 
