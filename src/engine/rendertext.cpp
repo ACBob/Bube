@@ -142,14 +142,31 @@ void gettextres(int &w, int &h)
     }
 }
 
+// Sets the width, height values to the charinfo associated with the character, according to the current font.
+void font_metrics(char c, float &width, float &height, float &offsetx, float &offsety, float &advance)
+{
+    font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
+    
+    width = cinfo.w;
+    height = cinfo.h;
+
+    offsetx = cinfo.offsetx;
+    offsety = (curfont->lineheight*0.5) - cinfo.offsety;
+
+    advance = cinfo.advance;
+}
+
 // Returns the width that text will take up to render the string.
 float text_widthf(const char *str) 
 {
     return 16.0;
 }
 
+// TODO: What does this do? And why?
 void draw_textf(const char *fstr, int left, int top, ...)
 {
+    defvformatstring(str, top, fstr);
+    draw_text(str, left, top);
 }
 
 const matrix4x3 *textmatrix = NULL;
@@ -160,11 +177,11 @@ static float draw_char(char c, float x, float y, float scale)
     if (!curfont->chars.inrange(c-curfont->charoffset)) return 0.0;
     font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
 
-    float x1 = x + cinfo.offsetx;
-    float y1 = (y + curfont->lineheight*0.5) - cinfo.offsety;
+    float w, h, ox, oy, adv;
+    font_metrics(c, w, h, ox, oy, adv);
 
-    float w = cinfo.w;
-    float h = cinfo.h;
+    float x1 = x + ox;
+    float y1 = y + oy;
 
     gle::begin(GL_QUADS);
         glBindTexture(GL_TEXTURE_2D, cinfo.tex);
@@ -176,7 +193,7 @@ static float draw_char(char c, float x, float y, float scale)
 
     gle::end();
 
-    return cinfo.advance;
+    return adv;
 }
 
 // Sets the gle::color to the text colour associated with the code.
@@ -220,8 +237,23 @@ void text_posf(const char *str, int cursor, float &cx, float &cy, int maxwidth)
 {
 }
 
+// Sets the width, height variables to the amount of space that the string would occupy, if rendered.
 void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 {
+    width = 0.0;
+    height = 0.0;
+
+    int i;
+    for(i = 0; str[i]; i++)
+    {
+        char c = uchar(str[i]);
+
+        float w, h, ox, oy, adv;
+        font_metrics(c, w, h, ox, oy, adv);
+
+        width += (w + ox + adv);
+        height += (h + oy);
+    }
 }
 
 // Draws the given string at the x (left), y (top) coords
