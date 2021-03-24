@@ -32,7 +32,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
     FT_Set_Pixel_Sizes(face, *(unsigned int*)defaultw, *(unsigned int*)defaulth);
 
-    f->chars.shrink(0);
+    // f->chars.shrink(0);
 
     unsigned char c;
     for (c = 0; c < 128; c++)
@@ -63,12 +63,14 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        font::charinfo cinfo = f->chars.add();
-        cinfo.tex = texid;
-        cinfo.x = face->glyph->bitmap_left;
-        cinfo.y = face->glyph->bitmap_top;
-        cinfo.w = face->glyph->bitmap.width;
-        cinfo.h = face->glyph->bitmap.rows;
+        font::charinfo *cinfo = &f->chars[name];
+        if (!cinfo->name) cinfo->name = newstring(c);
+        cinfo->tex = texid;
+        cinfo->x = face->glyph->bitmap_left;
+        cinfo->y = face->glyph->bitmap_top;
+        cinfo->w = face->glyph->bitmap.width;
+        cinfo->h = face->glyph->bitmap.rows;
+        cinfo->advance = face->glyph->advance.x;
     }
 
     FT_Done_Face(face);
@@ -200,25 +202,45 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 {
     bvec color(r,g,b);
 
-    loopi(sizeof(str))
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    gle::color(color, a);
+    gle::defvertex(2);
+
+
+    float x = left;
+    float y = top;
+
+    int i = 0;
+    while(str[i] != '\0')
     {
-        font::charinfo cinfo = curfont->chars[i];
+        char* c = (char *)str[i];
+        font::charinfo *cinfo = curfont->chars.access(c);
+        if (!cinfo) {
+            conoutf(CON_ERROR, "no charinfo");
+            return;
+        }
 
-        float x = left;
-        float y = top;
-
-        float w = cinfo.w;
-        float h = cinfo.h;
+        float w = cinfo->w;
+        float h = cinfo->h;
 
         float x1 = left + w;
         float y1 = top + h;
 
-        glBindTexture(GL_TEXTURE_2D, cinfo.tex);
+        glBindTexture(GL_TEXTURE_2D, notexture->id);
 
-        gle::attribf(x, y); gle::attribf(0,0);
-        gle::attribf(x1, y); gle::attribf(1,0);
+        gle::begin(GL_QUADS);
+
+        gle::attribf(x, y);   gle::attribf(0,0);
+        gle::attribf(x1, y);  gle::attribf(1,0);
         gle::attribf(x1, y1); gle::attribf(1,1);
-        gle::attribf(x, y1); gle::attribf(0,1);
+        gle::attribf(x, y1);  gle::attribf(0,1);
+
+        gle::end();
+
+        x += cinfo->advance;
+
+        i ++;
     }
 }
 
