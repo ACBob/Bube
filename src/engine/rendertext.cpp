@@ -231,6 +231,12 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Gah! Damn you cube 2!
+    if (a < 0)
+    {
+        a = -a;
+    }
+
     gle::color(color, a);
     gle::defvertex(2);
 
