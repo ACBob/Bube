@@ -32,7 +32,8 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
     FT_Set_Pixel_Sizes(face, *(unsigned int*)defaultw, *(unsigned int*)defaulth);
 
-    // f->chars.shrink(0);
+    f->chars.shrink(0);
+    f->charoffset = 0;
 
     unsigned char c;
     for (c = 0; c < 128; c++)
@@ -58,20 +59,14 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
             GL_UNSIGNED_BYTE,
             face->glyph->bitmap.buffer
         );
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        font::charinfo cinfo;
+        font::charinfo cinfo = f->chars.add();
         cinfo.tex = texid;
         cinfo.x = face->glyph->bitmap_left;
         cinfo.y = face->glyph->bitmap_top;
         cinfo.w = face->glyph->bitmap.width;
         cinfo.h = face->glyph->bitmap.rows;
         cinfo.advance = face->glyph->advance.x;
-
-        f->chars.add(cinfo);
     }
 
     FT_Done_Face(face);
@@ -212,26 +207,25 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
     float x = left;
     float y = top;
 
-    int i = 0;
-    while(str[i] != '\0')
+    int i;
+    for(i = 0; str[i]; i++)
     {
-        char* c = (char *)str[i];
+        int c = uchar(str[i]);
+
+        if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
         font::charinfo cinfo = curfont->getchar(c);
 
-        float w = cinfo.w;
-        float h = cinfo.h;
+        float x1 = left + cinfo.w;
+        float y1 = top + cinfo.h;
 
-        float x1 = left + w;
-        float y1 = top + h;
-
-        glBindTexture(GL_TEXTURE_2D, notexture->id);
+        glBindTexture(GL_TEXTURE_2D, cinfo.tex);
 
         gle::begin(GL_QUADS);
 
         gle::attribf(x, y);   gle::attribf(0,0);
+        gle::attribf(x, y1);  gle::attribf(0,1);
         gle::attribf(x1, y);  gle::attribf(1,0);
         gle::attribf(x1, y1); gle::attribf(1,1);
-        gle::attribf(x, y1);  gle::attribf(0,1);
 
         gle::end();
 

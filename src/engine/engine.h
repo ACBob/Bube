@@ -39,7 +39,6 @@ struct font
 {
     struct charinfo
     {
-        char *name;
         short x, y, w, h, offsetx, offsety, advance;
         unsigned int tex;
     };
@@ -49,9 +48,9 @@ struct font
     vector<charinfo> chars;
     int charoffset, defaultw, defaulth, scale;
 
-    charinfo getchar(const char *c)
+    charinfo getchar(int c)
     {
-        return chars[10];
+        return chars[c-charoffset];
     }
 
     font() : name(NULL) {}
