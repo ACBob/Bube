@@ -17,7 +17,6 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
 - [ ] Specifically remove hard-coded sound names.
 - [x] Add a scripting language.\
       *Lua 5.1!*
-- [ ] Public domain example game.
 - [ ] Potentially replace GUI with better library.\
       *Although all the GUIs are 3D. This is an end-of-the-road type of deal.*
 
