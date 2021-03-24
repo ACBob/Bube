@@ -66,6 +66,11 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
             GL_UNSIGNED_BYTE,
             face->glyph->bitmap.buffer
         );
+
+        // Swizzle to alpha
+        GLint swizzlemask[] = {GL_ONE, GL_ONE, GL_ONE, GL_RED};
+        glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzlemask);
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
