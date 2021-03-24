@@ -136,7 +136,7 @@ static float draw_char(char c, float x, float y, float scale)
     font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
 
     float x1 = x + cinfo.offsetx;
-    float y1 = y - (cinfo.h - cinfo.offsety);
+    float y1 = y;// + cinfo.offsety; //TODO: y OFFSET
 
     float w = cinfo.w;
     float h = cinfo.h;
