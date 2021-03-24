@@ -53,6 +53,11 @@ struct font
 
 #define MINRESW 640
 #define MINRESH 480
+// Get things to shut up while we destroy their world
+// TODO: Remove when FreeType is done!
+#define FONTH 16
+#define FONTW FONTH
+extern const matrix4x3 *textmatrix;
 
 extern void reloadfonts();
 
