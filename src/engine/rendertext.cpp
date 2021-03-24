@@ -125,9 +125,28 @@ void draw_textf(const char *fstr, int left, int top, ...)
 
 const matrix4x3 *textmatrix = NULL;
 
-static float draw_char(Texture *&tex, int c, float x, float y, float scale)
+static float draw_char(char c, float x, float y, float scale)
 {
-    return 0.0;
+    if (!curfont->chars.inrange(c-curfont->charoffset)) return 0.0;
+    font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
+
+    float x1 = x + cinfo.x;
+    float y1 = y - (cinfo.h - cinfo.y);
+
+    float x2 = x1 + cinfo.w;
+    float y2 = y1 + cinfo.h;
+
+    gle::begin(GL_QUADS);
+        glBindTexture(GL_TEXTURE_2D, cinfo.tex);
+
+        gle::attribf(x1, y1);  gle::attribf(0,0);
+        gle::attribf(x2, y1);  gle::attribf(1,0);
+        gle::attribf(x2, y2);  gle::attribf(1,1);
+        gle::attribf(x1, y2);  gle::attribf(0,1);
+
+    gle::end();
+
+    return cinfo.advance;
 }
 
 //stack[sp] is current color index
@@ -202,29 +221,9 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
             continue;
         }
 
-
-        if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
-        font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
-
-        float x1 = x + cinfo.x;
-        float y1 = y - (cinfo.h - cinfo.y);
-
-        float x2 = x1 + cinfo.w;
-        float y2 = y1 + cinfo.h;
-
-        gle::begin(GL_QUADS);
-            glBindTexture(GL_TEXTURE_2D, cinfo.tex);
-
-            gle::attribf(x1, y1);  gle::attribf(0,0);
-            gle::attribf(x2, y1);  gle::attribf(1,0);
-            gle::attribf(x2, y2);  gle::attribf(1,1);
-            gle::attribf(x1, y2);  gle::attribf(0,1);
-        
-        gle::end();
-
         // For some reason the value here isn't in pixels.
         // WHY? Anyway, we need to bitshift it.
-        x += (cinfo.advance >> 6);
+        x += ((int)draw_char(c, x, y, 1.0) >> 6);
     }
 }
 
