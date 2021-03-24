@@ -51,13 +51,8 @@ struct font
     ~font() { DELETEA(name); }
 };
 
-#define FONTH (curfont->scale)
-#define FONTW (FONTH/2)
 #define MINRESW 640
 #define MINRESH 480
-
-extern font *curfont;
-extern const matrix4x3 *textmatrix;
 
 extern void reloadfonts();
 
