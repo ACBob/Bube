@@ -246,7 +246,7 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         char c = uchar(str[i]);
         
         // Test for special characters, like newlines
-        if (c == *(unsigned char *)"\n")
+        if (c == '\r' || c == '\n')
         {
             x = left;
             y += curfont->lineheight;
