@@ -198,11 +198,14 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 {
     bvec color(r,g,b);
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     gle::color(color, a);
     gle::defvertex(2);
 
+    gle::deftexcoord0();
+
+    gle::begin(GL_QUADS);
 
     float x = left;
     float y = top;
@@ -218,21 +221,19 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         float x1 = left + cinfo.w;
         float y1 = top + cinfo.h;
 
-        glBindTexture(GL_TEXTURE_2D, cinfo.tex);
-
-        gle::begin(GL_QUADS);
+        glBindTexture(GL_TEXTURE_2D, notexture->id);
 
         gle::attribf(x, y);   gle::attribf(0,0);
-        gle::attribf(x, y1);  gle::attribf(0,1);
         gle::attribf(x1, y);  gle::attribf(1,0);
-        gle::attribf(x1, y1); gle::attribf(1,1);
+        gle::attribf(x1, y1);  gle::attribf(1,1);
+        gle::attribf(x, y1); gle::attribf(0,1);
 
-        gle::end();
 
         x += cinfo.advance;
 
         i ++;
     }
+    gle::end();
 }
 
 void reloadfonts()
