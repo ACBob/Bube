@@ -34,6 +34,8 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
     FT_Set_Pixel_Sizes(face, *(unsigned int*)defaultw, *(unsigned int*)defaulth);
 
+    f->lineheight = *defaulth + 1; // TODO: find the line height with FreeType
+
     f->chars.shrink(0);
     f->charoffset = 0;
 
@@ -71,7 +73,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
         cinfo.y = face->glyph->bitmap_top;
         cinfo.w = face->glyph->bitmap.width;
         cinfo.h = face->glyph->bitmap.rows;
-        cinfo.advance = face->glyph->bitmap.width; // TODO: use advance value
+        cinfo.advance = face->glyph->advance.x; // TODO: use advance value
     }
 
     FT_Done_Face(face);
@@ -219,6 +221,19 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
     for(i = 0; str[i]; i++)
     {
         char c = uchar(str[i]);
+
+        // go away null
+        if (c == NULL) continue;
+        
+        // Test for special characters, like newlines
+        if (c == *(unsigned char *)"\n")
+        {
+            y += curfont->lineheight;
+            x = left;
+            continue;
+        }
+
+
         if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
         font::charinfo cinfo = curfont->getchar(c);
 
@@ -232,7 +247,9 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         gle::attribf(x1, y1); gle::attribf(1,1);
         gle::attribf(x, y1);  gle::attribf(0,1);
 
-        x += cinfo.advance;
+        // For some reason the value here isn't in pixels.
+        // WHY? Anyway, we need to bitshift it.
+        x += (cinfo.advance >> 6);
 
         i ++;
     }

@@ -46,7 +46,7 @@ struct font
     char *name;
     vector<unsigned int> texs; // TODO: glue to textures
     vector<charinfo> chars;
-    int charoffset, defaultw, defaulth, scale;
+    int charoffset, defaultw, defaulth, scale, lineheight;
 
     charinfo getchar(int c)
     {
