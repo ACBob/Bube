@@ -32,11 +32,10 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
     FT_Set_Pixel_Sizes(face, *(unsigned int*)defaultw, *(unsigned int*)defaulth);
 
-    f->name = name;
     f->chars.shrink(0);
 
     unsigned char c;
-    loopi(c)
+    for (c = 0; c < 128; c++)
     {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
