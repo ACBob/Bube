@@ -205,6 +205,8 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 {
 }
 
+#define TEXTTAB (curfont->defaultw * 4)
+
 void draw_text(const char *str, int left, int top, int r, int g, int b, int a, int cursor, int maxwidth) 
 {
     bvec color(r,g,b);
@@ -237,16 +239,19 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
         font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
 
-        float x1 = x + cinfo.w;
-        float y1 = y + cinfo.h;
+        float x1 = x + cinfo.x;
+        float y1 = y - (cinfo.h - cinfo.y);
+
+        float x2 = x1 + cinfo.w;
+        float y2 = y1 + cinfo.h;
 
         gle::begin(GL_QUADS);
             glBindTexture(GL_TEXTURE_2D, cinfo.tex);
 
-            gle::attribf(x, y);   gle::attribf(0,0);
-            gle::attribf(x1, y);  gle::attribf(1,0);
-            gle::attribf(x1, y1); gle::attribf(1,1);
-            gle::attribf(x, y1);  gle::attribf(0,1);
+            gle::attribf(x1, y1);  gle::attribf(0,0);
+            gle::attribf(x2, y1);  gle::attribf(1,0);
+            gle::attribf(x2, y2);  gle::attribf(1,1);
+            gle::attribf(x1, y2);  gle::attribf(0,1);
         
         gle::end();
 
