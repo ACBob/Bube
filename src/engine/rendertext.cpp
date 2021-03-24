@@ -8,6 +8,7 @@ static hashnameset<font> fonts;
 font *curfont = NULL;
 
 FT_Library ft;
+// Inits the font library
 bool init_fonts()
 {
     if(FT_Init_FreeType(&ft))
@@ -15,6 +16,12 @@ bool init_fonts()
         return false;
     }
     return true;
+}
+
+// cleans up the font library
+void cleanup_fonts()
+{
+    FT_Done_FreeType(ft);
 }
 
 // This was instrumental in writing:
@@ -90,12 +97,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
 COMMANDN(font, newfont, "ssii");
 
-void fontalias(const char *dst, const char *src)
-{
-}
-
-COMMAND(fontalias, "ss");
-
+// sets the curfont
 bool setfont(const char *name)
 {
     font *f = fonts.access(name);
@@ -104,32 +106,55 @@ bool setfont(const char *name)
     return true;
 }
 
+// A stack to store fonts.
+// Ideally you'd push a font to it when switching, so you can go back to the previous font with pop.
 static vector<font *> fontstack;
 
+// Pushes the current font to the stack
 void pushfont()
 {
+    fontstack.add(curfont);
 }
 
+// Pops the font off of the stack
 bool popfont()
 {
+    if(fontstack.empty()) return false;
+    curfont = fontstack.pop();
     return true;
 }
 
+// Returns the resolution we render text at(?)
 void gettextres(int &w, int &h)
 {
+    if(w < MINRESW || h < MINRESH)
+    {
+        if(MINRESW > w*MINRESH/h)
+        {
+            h = h*MINRESW/w;
+            w = MINRESW;
+        }
+        else
+        {
+            w = w*MINRESH/h;
+            h = MINRESH;
+        }
+    }
 }
 
+// Returns the width that text will take up to render the string.
 float text_widthf(const char *str) 
 {
     return 16.0;
 }
-    
+
 void draw_textf(const char *fstr, int left, int top, ...)
 {
 }
 
 const matrix4x3 *textmatrix = NULL;
 
+// Draws the given character, if the font has it.
 static float draw_char(char c, float x, float y, float scale)
 {
     if (!curfont->chars.inrange(c-curfont->charoffset)) return 0.0;
@@ -154,7 +179,7 @@ static float draw_char(char c, float x, float y, float scale)
     return cinfo.advance;
 }
 
-//stack[sp] is current color index
+// Sets the gle::color to the text colour associated with the code.
 static void text_color(char c, char *stack, int size, int &sp, bvec color, int a) 
 {
     if(c=='s') // save color
@@ -184,6 +209,7 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
     } 
 }
 
+// The character visible in text(?)
 int text_visible(const char *str, float hitx, float hity, int maxwidth)
 {
     return 0;
@@ -198,6 +224,7 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 {
 }
 
+// Draws the given string at the x (left), y (top) coords
 void draw_text(const char *str, int left, int top, int r, int g, int b, int a, int cursor, int maxwidth) 
 {
     bvec color(r,g,b);
@@ -232,6 +259,8 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
     }
 }
 
+// Unimplemented.
+// Reloads fonts from the file.
 void reloadfonts()
 {
 }
