@@ -63,7 +63,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
             face->glyph->bitmap.buffer
         );
 
-        font::charinfo cinfo = f->chars.add();
+        font::charinfo &cinfo = f->chars.add();
         cinfo.tex = texid;
         cinfo.x = face->glyph->bitmap_left;
         cinfo.y = face->glyph->bitmap_top;
@@ -203,8 +203,6 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    float scale = 0.5;
-
     gle::color(color, a);
     gle::defvertex(2);
 
@@ -215,33 +213,27 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
     float x = left;
     float y = top;
 
-    // int i;
-    // for(i = 0; str[i]; i++)
-    // {
-        // if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
-        font::charinfo cinfo = curfont->chars[0];
+    int i;
+    for(i = 0; str[i]; i++)
+    {
+        char c = uchar(str[i]);
+        if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
+        font::charinfo cinfo = curfont->getchar(c);
 
-        float x1 = x + (cinfo.w * scale);
-        float y1 = y + (cinfo.h * scale);
+        float x1 = x + cinfo.w;
+        float y1 = y + cinfo.h;
 
         glBindTexture(GL_TEXTURE_2D, cinfo.tex);
 
-        // gle::attribf(x, y);   gle::attribf(0,0);
-        // gle::attribf(x1, y);  gle::attribf(1,0);
-        // gle::attribf(x1, y1); gle::attribf(1,1);
-        // gle::attribf(x, y1);  gle::attribf(0,1);
+        gle::attribf(x, y);   gle::attribf(0,0);
+        gle::attribf(x1, y);  gle::attribf(1,0);
+        gle::attribf(x1, y1); gle::attribf(1,1);
+        gle::attribf(x, y1);  gle::attribf(0,1);
 
-        gle::attribf(0, 0);   gle::attribf(0,0);
-        gle::attribf(64, 0);  gle::attribf(1,0);
-        gle::attribf(64, 64); gle::attribf(1,1);
-        gle::attribf(0, 64);  gle::attribf(0,1);
-        
+        x += cinfo.advance;
 
-
-        x += cinfo.advance * scale;
-
-        // i ++;
-    // }
+        i ++;
+    }
     gle::end();
 }
 
