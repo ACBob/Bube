@@ -35,9 +35,12 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
     f->chars.shrink(0);
     f->charoffset = 0;
 
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
+
     unsigned char c;
-    for (c = 0; c < 128; c++)
+    for (c = 0; c < 128; c++) // hehe c++
     {
+        conoutf(CON_DEBUG, "%c", c);
         if (FT_Load_Char(face, c, FT_LOAD_RENDER))
         {
             conoutf(CON_WARN, "Font is missing glpyh %c.", c);
@@ -200,6 +203,8 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    float scale = 0.5;
+
     gle::color(color, a);
     gle::defvertex(2);
 
@@ -210,29 +215,33 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
     float x = left;
     float y = top;
 
-    int i;
-    for(i = 0; str[i]; i++)
-    {
-        int c = uchar(str[i]);
+    // int i;
+    // for(i = 0; str[i]; i++)
+    // {
+        // if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
+        font::charinfo cinfo = curfont->chars[0];
 
-        if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
-        font::charinfo cinfo = curfont->getchar(c);
+        float x1 = x + (cinfo.w * scale);
+        float y1 = y + (cinfo.h * scale);
 
-        float x1 = x + cinfo.w;
-        float y1 = y + cinfo.h;
+        glBindTexture(GL_TEXTURE_2D, cinfo.tex);
 
-        glBindTexture(GL_TEXTURE_2D, notexture->id);
+        // gle::attribf(x, y);   gle::attribf(0,0);
+        // gle::attribf(x1, y);  gle::attribf(1,0);
+        // gle::attribf(x1, y1); gle::attribf(1,1);
+        // gle::attribf(x, y1);  gle::attribf(0,1);
 
-        gle::attribf(x, y);   gle::attribf(0,0);
-        gle::attribf(x1, y);  gle::attribf(1,0);
-        gle::attribf(x1, y1); gle::attribf(1,1);
-        gle::attribf(x, y1);  gle::attribf(0,1);
+        gle::attribf(0, 0);   gle::attribf(0,0);
+        gle::attribf(64, 0);  gle::attribf(1,0);
+        gle::attribf(64, 64); gle::attribf(1,1);
+        gle::attribf(0, 64);  gle::attribf(0,1);
+        
 
 
-        x += cinfo.advance;
+        x += cinfo.advance * scale;
 
-        i ++;
-    }
+        // i ++;
+    // }
     gle::end();
 }
 
