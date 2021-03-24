@@ -39,6 +39,7 @@ COMMAND(fontalias, "ss");
 
 bool setfont(const char *name)
 {
+    return true;
 }
 
 static vector<font *> fontstack;
@@ -49,6 +50,7 @@ void pushfont()
 
 bool popfont()
 {
+    return true;
 }
 
 void gettextres(int &w, int &h)
@@ -57,6 +59,7 @@ void gettextres(int &w, int &h)
 
 float text_widthf(const char *str) 
 {
+    return 16.0;
 }
 
 void tabify(const char *str, int *numtabs)
@@ -73,6 +76,7 @@ const matrix4x3 *textmatrix = NULL;
 
 static float draw_char(Texture *&tex, int c, float x, float y, float scale)
 {
+    return 0.0;
 }
 
 //stack[sp] is current color index
@@ -107,6 +111,7 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
 
 int text_visible(const char *str, float hitx, float hity, int maxwidth)
 {
+    return 0;
 }
 
 //inverse of text_visible
