@@ -222,7 +222,6 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
     int i;
     for(i = 0; str[i]; i++)
     {
-        i++;
 
         char c = uchar(str[i]);
         
