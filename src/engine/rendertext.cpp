@@ -24,6 +24,8 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
     font *f = &fonts[name];
     if (!f->name) f->name = newstring(name);
 
+    f->scale = *defaulth;
+
     FT_Face face;
     if (FT_New_Face(ft, fp, 0, &face))
     {
@@ -69,7 +71,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
         cinfo.y = face->glyph->bitmap_top;
         cinfo.w = face->glyph->bitmap.width;
         cinfo.h = face->glyph->bitmap.rows;
-        cinfo.advance = face->glyph->advance.x;
+        cinfo.advance = face->glyph->bitmap.width; // TODO: use advance value
     }
 
     FT_Done_Face(face);

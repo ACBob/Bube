@@ -62,10 +62,11 @@ extern bool init_fonts();
 #define MINRESW 640
 #define MINRESH 480
 // Get things to shut up while we destroy their world
-// TODO: Remove when FreeType is done!
-#define FONTH 16
-#define FONTW FONTH
+#define FONTH (curfont->scale)
+#define FONTW FONTH/2
 extern const matrix4x3 *textmatrix;
+
+extern font *curfont;
 
 extern void reloadfonts();
 
