@@ -218,15 +218,15 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         if (!curfont->chars.inrange(c-curfont->charoffset)) continue;
         font::charinfo cinfo = curfont->getchar(c);
 
-        float x1 = left + cinfo.w;
-        float y1 = top + cinfo.h;
+        float x1 = x + cinfo.w;
+        float y1 = y + cinfo.h;
 
         glBindTexture(GL_TEXTURE_2D, notexture->id);
 
         gle::attribf(x, y);   gle::attribf(0,0);
         gle::attribf(x1, y);  gle::attribf(1,0);
-        gle::attribf(x1, y1);  gle::attribf(1,1);
-        gle::attribf(x, y1); gle::attribf(0,1);
+        gle::attribf(x1, y1); gle::attribf(1,1);
+        gle::attribf(x, y1);  gle::attribf(0,1);
 
 
         x += cinfo.advance;
