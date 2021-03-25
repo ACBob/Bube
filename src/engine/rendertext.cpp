@@ -153,7 +153,9 @@ void font_metrics(char c, float &width, float &height, float &offsetx, float &of
     offsetx = cinfo.offsetx;
     offsety = (curfont->lineheight*0.5) - cinfo.offsety;
 
-    advance = cinfo.advance;
+    // For some reason the value here isn't in pixels.
+    // WHY? Anyway, we need to bitshift it.
+    advance = (cinfo.advance >> 6);
 }
 
 // Returns the width that text will take up to render the string.
@@ -244,7 +246,7 @@ void text_posf(const char *str, int cursor, float &cx, float &cy, int maxwidth)
 void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 {
     width = 0.0;
-    float cwidth = 0.0;
+    float usewidth = 0.0;
     height = 0.0;
 
     int i;
@@ -261,11 +263,11 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
             height += (h + oy);
 
 
-            if (width > cwidth)
+            if (usewidth > width)
             {
-                cwidth = width;
+                width = usewidth;
             }
-            width = 0.0;
+            usewidth = 0.0;
 
             continue;
         }
@@ -277,9 +279,9 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
         width += (w + ox + adv);
     }
 
-    if (cwidth > width)
+    if (usewidth > width)
     {
-        width = cwidth;
+        width = usewidth;
     }
 }
 
@@ -326,9 +328,7 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
             text_color(str[i]+1, colorstack, sizeof(colorstack), cpos, color, a);
         }
 
-        // For some reason the value here isn't in pixels.
-        // WHY? Anyway, we need to bitshift it.
-        x += ((int)draw_char(c, x, y, 1.0) >> 6);
+        x += (int)draw_char(c, x, y, 1.0);
     }
 }
 
