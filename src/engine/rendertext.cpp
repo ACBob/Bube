@@ -283,6 +283,9 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
     {
         width = usewidth;
     }
+
+    if (maxwidth)
+        width = maxwidth;
 }
 
 // Draws the given string at the x (left), y (top) coords
