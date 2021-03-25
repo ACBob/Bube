@@ -258,7 +258,7 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
         font_metrics(c, w, h, ox, oy, adv);
 
         // Test for special characters, like newlines, as they don't take up space.
-        if (c == '\r' || c == '\n')
+        if (c == '\r' || c == '\n' || usewidth >= maxwidth)
         {
             height += (h + oy);
 
@@ -316,7 +316,7 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         char c = uchar(str[i]);
         
         // Test for special characters, like newlines
-        if (c == '\r' || c == '\n')
+        if (c == '\r' || c == '\n' || x >= maxwidth)
         {
             x = left;
             y += curfont->lineheight;
