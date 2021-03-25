@@ -325,7 +325,8 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
         else if (c == '\f') // Colouring
         {
             int cpos = 0;
-            text_color(str[i]+1, colorstack, sizeof(colorstack), cpos, color, a);
+            text_color(str[i+1], colorstack, sizeof(colorstack), cpos, color, a);
+            continue;
         }
 
         x += (int)draw_char(c, x, y, 1.0);
