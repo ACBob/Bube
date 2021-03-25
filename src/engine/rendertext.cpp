@@ -247,7 +247,7 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 {
     width = 0.0;
     float usewidth = 0.0;
-    height = 0.0;
+    height = curfont->lineheight;
 
     int i;
     for(i = 0; str[i]; i++)
