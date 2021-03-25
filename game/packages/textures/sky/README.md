@@ -1,0 +1,1 @@
+"intheclouds" are from the [kothic skies pack](https://www.quaddicted.com/webarchive/kell.quaddicted.com/skyboxes.html)
