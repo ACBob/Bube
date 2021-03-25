@@ -1277,6 +1277,9 @@ int main(int argc, char **argv)
         conoutf(CON_WARN, "could not load missing texture, generated instead.");
     }
 
+    logoutf("init: freetype");
+    if (!init_fonts()) fatal("cannot init freetype");
+
     logoutf("init: console");
     if(!execfile("data/stdlib.cfg", false)) fatal("cannot find data files");   // this is the first file we load.
     if(!execfile("data/font.cfg", false)) fatal("cannot find font definitions");

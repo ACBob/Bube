@@ -776,4 +776,3 @@ extern Slot dummyslot;
 extern VSlot dummyvslot;
 extern vector<Slot *> slots;
 extern vector<VSlot *> vslots;
-
