@@ -159,7 +159,10 @@ void font_metrics(char c, float &width, float &height, float &offsetx, float &of
 // Returns the width that text will take up to render the string.
 float text_widthf(const char *str) 
 {
-    return 16.0;
+    float w, h;
+    text_boundsf(str, w, h);
+
+    return w;
 }
 
 // TODO: What does this do? And why?
