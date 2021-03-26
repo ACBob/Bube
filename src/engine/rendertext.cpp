@@ -177,7 +177,7 @@ void draw_textf(const char *fstr, int left, int top, ...)
 const matrix4x3 *textmatrix = NULL;
 
 // Draws the given character, if the font has it.
-static float draw_char(char c, float x, float y, float scale)
+static float draw_char(char c, float x, float y, float scale = 1.0)
 {
     if (!curfont->chars.inrange(c-curfont->charoffset)) return 0.0;
     font::charinfo cinfo = curfont->chars[c-curfont->charoffset];
@@ -185,20 +185,30 @@ static float draw_char(char c, float x, float y, float scale)
     float w, h, ox, oy, adv;
     font_metrics(c, w, h, ox, oy, adv);
 
-    float x1 = x + ox;
-    float y1 = y + oy;
+    float x1 = x + scale*ox;
+    float y1 = y + scale*oy;
+    float x2 = x1 + scale*w;
+    float y2 = y1 + scale*h;
 
     gle::begin(GL_QUADS);
         glBindTexture(GL_TEXTURE_2D, cinfo.tex);
-
+    if (textmatrix) // 3D TEXT
+    {
+        gle::attrib(textmatrix->transform(vec2(x1, y1))); gle::attribf(0, 0);
+        gle::attrib(textmatrix->transform(vec2(x2, y1))); gle::attribf(1, 0);
+        gle::attrib(textmatrix->transform(vec2(x2, y2))); gle::attribf(1, 1);
+        gle::attrib(textmatrix->transform(vec2(x1, y2))); gle::attribf(0, 1);
+    }
+    else // HUD TEXT
+    {
         gle::attribf(x1, y1);  gle::attribf(0,0);
-        gle::attribf(x1 + w, y1);  gle::attribf(1,0);
-        gle::attribf(x1 + w, y1 + h);  gle::attribf(1,1);
-        gle::attribf(x1, y1 + h);  gle::attribf(0,1);
-
+        gle::attribf(x2, y1);  gle::attribf(1,0);
+        gle::attribf(x2, y2);  gle::attribf(1,1);
+        gle::attribf(x1, y2);  gle::attribf(0,1);
+    }
     gle::end();
 
-    return adv;
+    return scale*adv;
 }
 
 // Sets the gle::color to the text colour associated with the code.

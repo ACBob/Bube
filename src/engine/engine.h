@@ -59,9 +59,9 @@ extern bool init_fonts();
 // Get things to shut up while we destroy their world
 #define FONTH (curfont->scale)
 #define FONTW FONTH/2
-extern const matrix4x3 *textmatrix;
 
 extern font *curfont;
+extern const matrix4x3 *textmatrix;
 
 extern void reloadfonts();
 
