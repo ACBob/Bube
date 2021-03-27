@@ -7,14 +7,14 @@
 
 #ifndef STANDALONE
 
-#include "octa.h"
-#include "lightmap.h"
-#include "bih.h"
-#include "texture.h"
-#include "model.h"
+	#include "octa.h"
+	#include "lightmap.h"
+	#include "bih.h"
+	#include "texture.h"
+	#include "model.h"
 
 extern dynent *player;
-extern physent *camera1;                // special ent that acts as camera, same object as player1 in FPS mode
+extern physent *camera1; // special ent that acts as camera, same object as player1 in FPS mode
 
 extern int worldscale, worldsize;
 extern int mapversion;
@@ -37,28 +37,33 @@ extern vector<int> entgroup;
 // rendertext
 struct font
 {
-    struct charinfo
-    {
-        short x, y, w, h, offsetx, offsety, advance;
-        unsigned int tex;
-    };
+	struct charinfo
+	{
+		short x, y, w, h, offsetx, offsety, advance;
+		unsigned int tex;
+	};
 
-    char *name;
-    vector<unsigned int> texs; // TODO: glue to textures
-    vector<charinfo> chars;
-    int charoffset, defaultw, defaulth, scale, lineheight;
-    
-    font() : name(NULL) {}
-    ~font() { DELETEA(name); }
+	char *name;
+	vector<unsigned int> texs; // TODO: glue to textures
+	vector<charinfo> chars;
+	int charoffset, defaultw, defaulth, scale, lineheight;
+
+	font() : name(NULL)
+	{
+	}
+	~font()
+	{
+		DELETEA(name);
+	}
 };
 
 extern bool init_fonts();
 
-#define MINRESW 640
-#define MINRESH 480
-// Get things to shut up while we destroy their world
-#define FONTH (curfont->scale)
-#define FONTW FONTH/2
+	#define MINRESW 640
+	#define MINRESH 480
+	// Get things to shut up while we destroy their world
+	#define FONTH (curfont->scale)
+	#define FONTW FONTH / 2
 
 extern font *curfont;
 extern const matrix4x3 *textmatrix;
@@ -76,8 +81,11 @@ extern void loadlayermasks();
 extern Texture *cubemapload(const char *name, bool mipit = true, bool msg = true, bool transient = false);
 extern void drawcubemap(int size, const vec &o, float yaw, float pitch, const cubemapside &side, bool onlysky = false);
 extern void loadshaders();
-extern void setuptexparameters(int tnum, void *pixels, int clamp, int filter, GLenum format = GL_RGB, GLenum target = GL_TEXTURE_2D, bool swizzle = false);
-extern void createtexture(int tnum, int w, int h, void *pixels, int clamp, int filter, GLenum component = GL_RGB, GLenum target = GL_TEXTURE_2D, int pw = 0, int ph = 0, int pitch = 0, bool resize = true, GLenum format = GL_FALSE, bool swizzle = false);
+extern void setuptexparameters(int tnum, void *pixels, int clamp, int filter, GLenum format = GL_RGB,
+							   GLenum target = GL_TEXTURE_2D, bool swizzle = false);
+extern void createtexture(int tnum, int w, int h, void *pixels, int clamp, int filter, GLenum component = GL_RGB,
+						  GLenum target = GL_TEXTURE_2D, int pw = 0, int ph = 0, int pitch = 0, bool resize = true,
+						  GLenum format = GL_FALSE, bool swizzle = false);
 extern void blurtexture(int n, int bpp, int w, int h, uchar *dst, const uchar *src, int margin = 0);
 extern void blurnormals(int n, int w, int h, bvec *dst, const bvec *src, int margin = 0);
 extern void renderpostfx();
@@ -128,14 +136,21 @@ extern int getnumviewcells();
 
 static inline bool pvsoccluded(const ivec &bborigin, int size)
 {
-    return pvsoccluded(bborigin, ivec(bborigin).add(size));
+	return pvsoccluded(bborigin, ivec(bborigin).add(size));
 }
 
 // rendergl
-extern bool hasVAO, hasFBO, hasAFBO, hasDS, hasTF, hasTRG, hasTSW, hasS3TC, hasFXT1, hasLATC, hasRGTC, hasAF, hasFBB, hasUBO, hasMBR;
+extern bool hasVAO, hasFBO, hasAFBO, hasDS, hasTF, hasTRG, hasTSW, hasS3TC, hasFXT1, hasLATC, hasRGTC, hasAF, hasFBB,
+	hasUBO, hasMBR;
 extern int glversion, glslversion, glcompat;
 
-enum { DRAWTEX_NONE = 0, DRAWTEX_ENVMAP, DRAWTEX_MINIMAP, DRAWTEX_MODELPREVIEW };
+enum
+{
+	DRAWTEX_NONE = 0,
+	DRAWTEX_ENVMAP,
+	DRAWTEX_MINIMAP,
+	DRAWTEX_MODELPREVIEW
+};
 
 extern float curfov, fovy, aspect, forceaspect;
 extern int drawtex;
@@ -181,9 +196,9 @@ extern void writecrosshairs(stream *f);
 
 namespace modelpreview
 {
-    extern void start(int x, int y, int w, int h, bool background = true);
-    extern void end();
-}
+	extern void start(int x, int y, int w, int h, bool background = true);
+	extern void end();
+} // namespace modelpreview
 
 // renderextras
 extern void render3dbox(vec &o, float tofloor, float toceil, float xradius, float yradius = 0);
@@ -206,11 +221,12 @@ extern int lusize;
 extern cube &lookupcube(const ivec &to, int tsize = 0, ivec &ro = lu, int &rsize = lusize);
 extern const cube *neighbourstack[32];
 extern int neighbourdepth;
-extern const cube &neighbourcube(const cube &c, int orient, const ivec &co, int size, ivec &ro = lu, int &rsize = lusize);
+extern const cube &neighbourcube(const cube &c, int orient, const ivec &co, int size, ivec &ro = lu,
+								 int &rsize = lusize);
 extern void resetclipplanes();
 extern int getmippedtexture(const cube &p, int orient);
 extern void forcemip(cube &c, bool fixtex = true);
-extern bool subdividecube(cube &c, bool fullcheck=true, bool brighten=true);
+extern bool subdividecube(cube &c, bool fullcheck = true, bool brighten = true);
 extern void edgespan2vectorcube(cube &c);
 extern int faceconvexity(const ivec v[4]);
 extern int faceconvexity(const ivec v[4], int &vis);
@@ -225,9 +241,11 @@ extern bool flataxisface(const cube &c, int orient);
 extern bool collideface(const cube &c, int orient);
 extern int genclipplane(const cube &c, int i, vec *v, plane *clip);
 extern void genclipplanes(const cube &c, const ivec &co, int size, clipplanes &p, bool collide = true);
-extern bool visibleface(const cube &c, int orient, const ivec &co, int size, ushort mat = MAT_AIR, ushort nmat = MAT_AIR, ushort matmask = MATF_VOLUME);
+extern bool visibleface(const cube &c, int orient, const ivec &co, int size, ushort mat = MAT_AIR,
+						ushort nmat = MAT_AIR, ushort matmask = MATF_VOLUME);
 extern int classifyface(const cube &c, int orient, const ivec &co, int size);
-extern int visibletris(const cube &c, int orient, const ivec &co, int size, ushort nmat = MAT_ALPHA, ushort matmask = MAT_ALPHA);
+extern int visibletris(const cube &c, int orient, const ivec &co, int size, ushort nmat = MAT_ALPHA,
+					   ushort matmask = MAT_ALPHA);
 extern int visibleorient(const cube &c, int orient);
 extern void genfaceverts(const cube &c, int orient, ivec v[4]);
 extern int calcmergedsize(int orient, const ivec &co, int size, const vertinfo *verts, int numverts);
@@ -235,11 +253,12 @@ extern void invalidatemerges(cube &c, const ivec &co, int size, bool msg);
 extern void calcmerges();
 
 extern int mergefaces(int orient, facebounds *m, int sz);
-extern void mincubeface(const cube &cu, int orient, const ivec &o, int size, const facebounds &orig, facebounds &cf, ushort nmat = MAT_AIR, ushort matmask = MATF_VOLUME);
+extern void mincubeface(const cube &cu, int orient, const ivec &o, int size, const facebounds &orig, facebounds &cf,
+						ushort nmat = MAT_AIR, ushort matmask = MATF_VOLUME);
 
 static inline cubeext &ext(cube &c)
 {
-    return *(c.ext ? c.ext : newcubeext(c));
+	return *(c.ext ? c.ext : newcubeext(c));
 }
 
 // ents
@@ -258,7 +277,8 @@ extern void rendereditcursor();
 extern void tryedit();
 
 extern bool prefabloaded(const char *name);
-extern void renderprefab(const char *name, const vec &o, float yaw, float pitch, float roll, float size = 1, const vec &color = vec(1, 1, 1));
+extern void renderprefab(const char *name, const vec &o, float yaw, float pitch, float roll, float size = 1,
+						 const vec &color = vec(1, 1, 1));
 extern void previewprefab(const char *name, const vec &color);
 
 // octarender
@@ -337,17 +357,22 @@ extern bool reflecting, fading, fogging;
 extern float reflectz;
 extern int reflectdist, vertwater, waterrefract, waterreflect, waterfade, caustics, waterfallrefract;
 
-#define GETMATIDXVAR(name, var, type) \
-    type get##name##var(int mat) \
-    { \
-        switch(mat&MATF_INDEX) \
-        { \
-            default: case 0: return name##var; \
-            case 1: return name##2##var; \
-            case 2: return name##3##var; \
-            case 3: return name##4##var; \
-        } \
-    }
+	#define GETMATIDXVAR(name, var, type)                                                                              \
+		type get##name##var(int mat)                                                                                   \
+		{                                                                                                              \
+			switch (mat & MATF_INDEX)                                                                                  \
+			{                                                                                                          \
+				default:                                                                                               \
+				case 0:                                                                                                \
+					return name##var;                                                                                  \
+				case 1:                                                                                                \
+					return name##2##var;                                                                               \
+				case 2:                                                                                                \
+					return name##3##var;                                                                               \
+				case 3:                                                                                                \
+					return name##4##var;                                                                               \
+			}                                                                                                          \
+		}
 
 extern const bvec &getwatercolor(int mat);
 extern const bvec &getwaterfallcolor(int mat);
@@ -430,17 +455,17 @@ extern void writecompletions(stream *f);
 // main
 enum
 {
-    NOT_INITING = 0,
-    INIT_GAME,
-    INIT_LOAD,
-    INIT_RESET
+	NOT_INITING = 0,
+	INIT_GAME,
+	INIT_LOAD,
+	INIT_RESET
 };
 extern int initing, numcpus;
 
 enum
 {
-    CHANGE_GFX   = 1<<0,
-    CHANGE_SOUND = 1<<1
+	CHANGE_GFX = 1 << 0,
+	CHANGE_SOUND = 1 << 1
 };
 extern bool initwarning(const char *desc, int level = INIT_RESET, int type = CHANGE_GFX);
 
@@ -449,18 +474,28 @@ extern bool grabinput, minimized;
 extern bool interceptkey(int sym);
 
 extern float loadprogress;
-extern void renderbackground(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL, const char *mapinfo = NULL, bool restore = false, bool force = false);
+extern void renderbackground(const char *caption = NULL, Texture *mapshot = NULL, const char *mapname = NULL,
+							 const char *mapinfo = NULL, bool restore = false, bool force = false);
 extern void renderprogress(float bar, const char *text, GLuint tex = 0, bool background = false);
 
 extern void getfps(int &fps, int &bestdiff, int &worstdiff);
 extern void swapbuffers(bool overlay = true);
 extern int getclockmillis();
 
-enum { KR_CONSOLE = 1<<0, KR_GUI = 1<<1, KR_EDITMODE = 1<<2 };
+enum
+{
+	KR_CONSOLE = 1 << 0,
+	KR_GUI = 1 << 1,
+	KR_EDITMODE = 1 << 2
+};
 
 extern void keyrepeat(bool on, int mask = ~0);
 
-enum { TI_CONSOLE = 1<<0, TI_GUI = 1<<1 };
+enum
+{
+	TI_CONSOLE = 1 << 0,
+	TI_GUI = 1 << 1
+};
 
 extern void textinput(bool on, int mask = ~0);
 
@@ -478,7 +513,8 @@ struct ShadowRayCache;
 extern ShadowRayCache *newshadowraycache();
 extern void freeshadowraycache(ShadowRayCache *&cache);
 extern void resetshadowraycache(ShadowRayCache *cache);
-extern float shadowray(ShadowRayCache *cache, const vec &o, const vec &ray, float radius, int mode, extentity *t = NULL);
+extern float shadowray(ShadowRayCache *cache, const vec &o, const vec &ray, float radius, int mode,
+					   extentity *t = NULL);
 
 // world
 
@@ -494,7 +530,11 @@ extern void resetmap();
 extern void startmap(const char *name);
 
 // rendermodel
-struct mapmodelinfo { string name; model *m; };
+struct mapmodelinfo
+{
+	string name;
+	model *m;
+};
 
 extern bool modelloaded(const char *name);
 extern void findanims(const char *pattern, vector<int> &anims);
@@ -507,13 +547,13 @@ extern void preloadusedmapmodels(bool msg = false, bool bih = false);
 
 static inline model *loadmapmodel(int n)
 {
-    extern vector<mapmodelinfo> mapmodels;
-    if(mapmodels.inrange(n))
-    {
-        model *m = mapmodels[n].m;
-        return m ? m : loadmodel(NULL, n);
-    }
-    return NULL;
+	extern vector<mapmodelinfo> mapmodels;
+	if (mapmodels.inrange(n))
+	{
+		model *m = mapmodels[n].m;
+		return m ? m : loadmodel(NULL, n);
+	}
+	return NULL;
 }
 
 // renderparticles
@@ -534,8 +574,8 @@ extern void renderdecals(bool mainpass = false);
 
 enum
 {
-    BLOB_STATIC = 0,
-    BLOB_DYNAMIC
+	BLOB_STATIC = 0,
+	BLOB_DYNAMIC
 };
 
 extern int showblobs;
@@ -608,18 +648,17 @@ extern uchar shouldsaveblendmap();
 
 namespace recorder
 {
-    extern void stop();
-    extern void capture(bool overlay = true);
-    extern void cleanup();
-}
+	extern void stop();
+	extern void capture(bool overlay = true);
+	extern void cleanup();
+} // namespace recorder
 
 // Lua api
 // extern lua_State *l;
 extern bool init_luaapi();
-extern const char* luaapi_geterror();   
+extern const char *luaapi_geterror();
 extern bool luaapi_dofile(const char *fp);
 
 #endif
 
 #endif
-

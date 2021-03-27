@@ -6,7 +6,7 @@
 extern lua_State *l;
 
 bool init_luaapi();
-const char* luaapi_geterror();
+const char *luaapi_geterror();
 bool luaapi_dofile(const char *fp);
 
 #endif // LUAAPI_H
