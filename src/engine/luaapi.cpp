@@ -22,12 +22,30 @@ bool luaapi_dofile(const char *fp, bool msg)
 	return true;
 }
 
+bool luaapi_do(const char *thing, bool msg)
+{
+	if (luaL_dostring(l, thing)) // 0 -> OK
+	{
+		if (msg)
+			conoutf(CON_ERROR, "LUA ERROR:\n%s", luaapi_geterror());
+		return false;
+	}
+	
+	return true;
+}
+
 // The command to run Lua files.
 void luadofile(const char *fp)
 {
 	luaapi_dofile(fp, true);
 }
 COMMAND(luadofile, "s");
+// The command to run Lua.
+void luado(const char *thing)
+{
+	luaapi_do(thing, true);
+}
+COMMAND(luado, "s");
 
 // Some lua functions.
 // Intended to only be called from lua!
