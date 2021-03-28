@@ -8,22 +8,19 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
  * Switched to CMake :feelsgood:
  * Sounds have been converted from IDs to Names. Internally, the sound system still uses ids, but the rest of the engine uses names. Much better, IMO.
  * The error texture can now be generated at run-time, removing the need to have a `notexture.png`. Indeed, the base game here does not supply one.
- * Added some mock Lua 5.1 support, but no mappings. To test a lua file, run `/luadofile <fp>`.
+ * Added some mock Lua 5.1 support, but no mappings. To test a lua file, run `/luadofile <fp>`, or `/luado <lua>`.
  * Fonts are now loaded with FreeType! Gone are the days of awful bitmap fonts.
 
 ## Planned Changes (No Order)
-- [ ] Increase size of maps.
-- [ ] Increase hard-coded limits in general.
-- [ ] Remove some hard-coded stuff.
-- [ ] Specifically remove hard-coded sound names.
+- [ ] Improve certain hard-coded limitations.
 - [x] Add a scripting language.\
       *Lua 5.1!*
-- [ ] Potentially replace GUI with better library.\
-      *Although all the GUIs are 3D. This is an end-of-the-road type of deal.*
+- [ ] Extend / Replace GUI System.\
+      *Not going to happen soon!*
+- [ ] Source:tm: Engine Style Entity I/O.\
+      *Connected to Lua?*
 
-## Planned Features
-- [] Backwards-compatability with Cube 2 mods/games\
-      **Note:** I am currently unsure, due to changes in the sound system, if there is still compatability with ALL mods/games.
+**Note:** Backwards-compatability with Cube 2 engine games is NOT garunteed, or a goal. If something works, It's a minor miracle.
 
 ## License
 Sauerbraten uses the zLib License.\
