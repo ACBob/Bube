@@ -96,7 +96,8 @@ bool loadents(const char *fname, vector<entity> &ents, uint *crc)
 		return false;
 	}
 	lilswap(&hdr.version, 6);
-	if (memcmp(hdr.magic, "OCTA", 4) || hdr.worldsize <= 0 || hdr.numents < 0)
+#ifndef BUBE_NEW_MAP
+	if (memcmp(hdr.magic, MAP_MAGIC, 4) || hdr.worldsize <= 0 || hdr.numents < 0)
 	{
 		conoutf(CON_ERROR, "map %s has malformatted header", ogzname);
 		delete f;
@@ -1122,7 +1123,7 @@ bool save_world(const char *mname, bool nolms)
 	renderprogress(0, "saving map...");
 
 	octaheader hdr;
-	memcpy(hdr.magic, "OCTA", 4);
+	memcpy(hdr.magic, MAP_MAGIC, 4);
 	hdr.version = MAPVERSION;
 	hdr.headersize = sizeof(hdr);
 	hdr.worldsize = worldsize;
@@ -1268,8 +1269,9 @@ bool load_world(const char *mname,
 		delete f;
 		return false;
 	}
+#ifndef BUBE_NEW_MAP
 	lilswap(&hdr.version, 6);
-	if (memcmp(hdr.magic, "OCTA", 4) || hdr.worldsize <= 0 || hdr.numents < 0)
+	if (memcmp(hdr.magic, MAP_MAGIC, 4) || hdr.worldsize <= 0 || hdr.numents < 0)
 	{
 		conoutf(CON_ERROR, "map %s has malformatted header", ogzname);
 		delete f;
@@ -1303,6 +1305,20 @@ bool load_world(const char *mname,
 			return false;
 		}
 	}
+#else
+	bool compat = false;
+	if (!memcmp(hdr.magic, MAP_COMPAT_MAGIC, 4))
+	{
+		conoutf(CON_WARN "map %s is from Cube Engine!", ogzname);
+		compat = true;
+	}
+	if ((compat || memcmp(hdr.magic, MAP_MAGIC, 4)) || hdr.worldsize <= 0 || hdr.numents < 0)
+	{
+		conoutf(CON_ERROR, "map %s has malformatted header", ogzname);
+		delete f;
+		return false;
+	}
+#endif
 
 	resetmap();
 

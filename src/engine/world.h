@@ -7,9 +7,45 @@ enum // hardcoded texture numbers
 
 #define MAPVERSION 33 // bump if map format changes, see worldio.cpp
 
+
+#ifdef BUBE_NEW_MAP
+// Why yes, I do consider myself a comedian
+#define MAP_MAGIC "SHIT"
+#define MAP_COMPAT_MAGIC "OCTA"
+
 struct octaheader
 {
+	char magic[4];	// "SHIT"
+	int version;	// any >8bit quantity is little endian
+	int headersize; // sizeof(header)
+	int worldsize;
+	int numents;
+	int numpvs;
+	int lightmaps;
+	int blendmap;
+	int numvars;
+	int numvslots;
+};
+
+struct compatheader
+{
 	char magic[4];	// "OCTA"
+	int version;	// any >8bit quantity is little endian
+	int headersize; // sizeof(header)
+	int worldsize;
+	int numents;
+	int numpvs;
+	int lightmaps;
+	int blendmap;
+	int numvars;
+	int numvslots;
+};
+#else
+#define MAP_MAGIC "OCTA"
+#define MAP_COMPAT_MAGIC "OCTA"
+struct octaheader
+{
+	char magic[4];	// "SHIT"
 	int version;	// any >8bit quantity is little endian
 	int headersize; // sizeof(header)
 	int worldsize;
@@ -42,6 +78,7 @@ struct compatheader // map file format header
 	uchar reserved[10];
 	char maptitle[128];
 };
+#endif
 
 #define WATER_AMPLITUDE 0.4f
 #define WATER_OFFSET 1.1f
