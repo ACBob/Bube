@@ -454,11 +454,20 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 	char colorstack[10];
 	colorstack[0] = 'c'; // indicate user color
 
+	float cx = 0;
+	float cy = 0;
+
 	int i;
 	for (i = 0; str[i]; i++)
 	{
 
 		char c = uchar(str[i]);
+
+		if (i == cursor) // this is the cursor pos!
+		{
+			cx = x;
+			cy = y;
+		}
 
 		// Test for special characters, like newlines
 		if (c == '\r' || c == '\n' || x > dontgoover)
@@ -477,8 +486,24 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 			}
 			continue;
 		}
+		else if (c == '\t') // tab
+		{
+			x += FONTTAB;
+			continue;
+		}
 
 		x += (int)draw_char(c, x, y, 1.0);
+	}
+
+	if (cursor >= 0 && (totalmillis / 250) & 1)
+	{
+		gle::color(color, a);
+		// if (maxwidth != -1 && cx >= maxwidth)
+		// {
+		// 	cx = 0;
+		// 	cy += FONTH;
+		// }
+		draw_char('_', left + cx, top + cy, 1.0);
 	}
 }
 
