@@ -444,6 +444,9 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 	float x = left;
 	float y = top;
 
+	float cx = x; // cursor x
+	float cy = y; // cursor y
+
 	float dontgoover;
 
 	if (maxwidth != -1)
@@ -453,9 +456,6 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 
 	char colorstack[10];
 	colorstack[0] = 'c'; // indicate user color
-
-	float cx = 0;
-	float cy = 0;
 
 	int i;
 	for (i = 0; str[i]; i++)
@@ -498,12 +498,12 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 	if (cursor >= 0 && (totalmillis / 250) & 1)
 	{
 		gle::color(color, a);
-		// if (maxwidth != -1 && cx >= maxwidth)
-		// {
-		// 	cx = 0;
-		// 	cy += FONTH;
-		// }
-		draw_char('_', left + cx, top + cy, 1.0);
+		if (maxwidth != -1 && cx >= maxwidth)
+		{
+			cx = 0;
+			cy += FONTH;
+		}
+		draw_char('_', cx, cy, 1.0);
 	}
 }
 
