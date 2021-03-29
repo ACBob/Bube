@@ -410,6 +410,11 @@ void text_boundsf(const char *str, float &width, float &height, int maxwidth)
 		{
 			continue;
 		}
+		else if (c == '\t') // tab
+		{
+			width += FONTTAB;
+			continue;
+		}
 
 		width += (w + ox + adv);
 	}
@@ -447,12 +452,12 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 	float cx = x; // cursor x
 	float cy = y; // cursor y
 
-	float dontgoover;
+	float maxx;
 
 	if (maxwidth != -1)
-		dontgoover = x + maxwidth;
+		maxx = x + maxwidth;
 	else
-		dontgoover = screenw;
+		maxx = screenw;
 
 	char colorstack[10];
 	colorstack[0] = 'c'; // indicate user color
@@ -470,7 +475,7 @@ void draw_text(const char *str, int left, int top, int r, int g, int b, int a, i
 		}
 
 		// Test for special characters, like newlines
-		if (c == '\r' || c == '\n' || x > dontgoover)
+		if (c == '\r' || c == '\n' || x > maxx)
 		{
 			x = left;
 			y += curfont->lineheight;
