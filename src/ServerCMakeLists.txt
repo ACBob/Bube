@@ -8,11 +8,14 @@ set(serverSources
 	engine/command.cpp
 	engine/server.cpp
 	engine/worldio.cpp
-	engine/luaapi.cpp
 	fpsgame/entities.cpp
 	fpsgame/server.cpp
 )
 list(TRANSFORM serverSources PREPEND "src/")
+
+if (BUBE_COMPILE_LUA)
+	list(APPEND serverSources "src/engine/luaapi.cpp")
+endif()
 
 add_executable(server ${serverSources})
 

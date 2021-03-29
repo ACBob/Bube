@@ -46,7 +46,6 @@ set(clientSources
 	engine/water.cpp
 	engine/world.cpp
 	engine/worldio.cpp
-	engine/luaapi.cpp
 	fpsgame/ai.cpp
 	fpsgame/client.cpp
 	fpsgame/entities.cpp
@@ -60,6 +59,10 @@ set(clientSources
 	fpsgame/weapon.cpp
 )
 list(TRANSFORM clientSources PREPEND "src/")
+
+if (BUBE_COMPILE_LUA)
+	list(APPEND clientSources "src/engine/luaapi.cpp")
+endif()
 
 add_executable(client ${clientSources})
 

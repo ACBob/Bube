@@ -8,17 +8,18 @@ add_subdirectory(src/thirdparty/enet)
 ## freetype
 add_subdirectory(src/thirdparty/FreeType)
 
-option(BUILD_CLIENT "Enable building the client" ON)
-option(BUILD_SERVER "Enable building the dedicated server" ON)
+option(BUBE_BUILD_CLIENT "Enable building the client" ON)
+option(BUBE_BUILD_SERVER "Enable building the dedicated server" ON)
+option(BUBE_COMPILE_LUA "Enable compilation of the Lua Api. (Enables/Disables Lua)" ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/game)
 
 ## client
-if (BUILD_CLIENT)
+if (BUBE_BUILD_CLIENT)
     include(src/ClientCMakeLists.txt)
 endif()
 
 ## server
-if (BUILD_SERVER)
+if (BUBE_BUILD_SERVER)
     include(src/ServerCMakeLists.txt)
 endif()
