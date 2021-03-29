@@ -7,6 +7,9 @@ static hashnameset<font> fonts;
 // TODO: better font setup
 font *curfont = NULL;
 
+#define FONTTAB (4 * FONTW)
+#define TEXTTAB(x) ((int((x) / FONTTAB) + 1.0f) * FONTTAB)
+
 FT_Library ft;
 // Inits the font library
 bool init_fonts()
@@ -270,14 +273,109 @@ static void text_color(char c, char *stack, int size, int &sp, bvec color, int a
 }
 
 // The character visible in text(?)
+// Based on YellowBerryHN's solution; https://github.com/ACBob/Bube/pull/1#issuecomment-808835390
 int text_visible(const char *str, float hitx, float hity, int maxwidth)
 {
-	return 0;
+	float y = 0, x = 0, scale = curfont->scale / float(curfont->defaulth);
+	int i;
+	for (i = 0; str[i]; i++)
+	{
+		int c = uchar(str[i]);
+		if (c == '\t')
+		{
+			x = TEXTTAB(x);
+			if (y + FONTH > hity && x >= hitx)
+				return i;
+		}
+		else if (c == ' ')
+		{
+			x += scale * curfont->defaultw;
+			if (y + FONTH > hity && x >= hitx)
+				return i;
+		}
+		else if (c == '\n')
+		{
+			if (y + FONTH > hity)
+				return i;
+			x = 0;
+			y += FONTH;
+		}
+		else if (c == '\f')
+		{
+			if (str[i + 1])
+			{
+				i++;
+			}
+		}
+		else if (curfont->chars.inrange(c - curfont->charoffset))
+		{
+			float cw = scale * curfont->chars[c - curfont->charoffset].advance;
+			if (cw <= 0)
+				continue;
+			if (maxwidth != -1)
+			{
+				int j = i;
+				float w = cw;
+				for (; str[i + 1]; i++)
+				{
+					int c = uchar(str[i + 1]);
+					if (c == '\f')
+					{
+						if (str[i + 2])
+							i++;
+						continue;
+					}
+					if (i - j > 16)
+						break;
+					if (!curfont->chars.inrange(c - curfont->charoffset))
+						break;
+					float cw = scale * curfont->chars[c - curfont->charoffset].advance;
+					if (cw <= 0 || w + cw > maxwidth)
+						break;
+					w += cw;
+				}
+				if (x + w > maxwidth && j != 0)
+				{
+					if (y + FONTH > hity)
+						return j - 1;
+					x = 0;
+					y += FONTH;
+				}
+				for (; j <= i; j++)
+				{
+					int c = uchar(str[j]);
+					if (c == '\f')
+					{
+						if (str[j + 1])
+						{
+							j++;
+						}
+					}
+					else
+					{
+						float cw = scale * curfont->chars[c - curfont->charoffset].advance;
+						x += cw;
+						if (y + FONTH > hity && x >= hitx)
+							return j;
+					}
+				}
+			}
+			else
+			{
+				x += cw;
+				if (y + FONTH > hity && x >= hitx)
+					return i;
+			}
+		}
+	}
+	return i;
 }
 
+// TODO:
 // inverse of text_visible
 void text_posf(const char *str, int cursor, float &cx, float &cy, int maxwidth)
 {
+	cx = cy = 0;
 }
 
 // Sets the width, height variables to the amount of space that the string would occupy, if rendered.
