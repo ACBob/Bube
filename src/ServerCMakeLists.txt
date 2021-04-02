@@ -10,11 +10,13 @@ set(serverSources
 	engine/worldio.cpp
 	fpsgame/entities.cpp
 	fpsgame/server.cpp
+
+	engine/scriptapi.cpp
 )
 list(TRANSFORM serverSources PREPEND "src/")
 
 add_executable(server ${serverSources})
 
-target_include_directories(server PUBLIC src/include src/shared src/engine src/psgame src/thirdparty/enet/include)
+target_include_directories(server PUBLIC src/include src/shared src/engine src/psgame src/thirdparty/enet/include src/thirdparty/angelscript)
 target_compile_definitions( server PUBLIC -DSTANDALONE )
 target_link_libraries(server enet z angelscript)
