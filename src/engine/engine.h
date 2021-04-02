@@ -3,6 +3,7 @@
 
 #include "cube.h"
 #include "world.h"
+#include "scriptapi.h" // engine level, bb
 
 #ifndef STANDALONE
 

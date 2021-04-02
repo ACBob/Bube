@@ -1,10 +1,6 @@
 // The api for da angelscript!
 
-#include "engine.h"
-
-#include <angelscript.h>
-#include <scriptstdstring/scriptstdstring.h>
-#include <scriptbuilder/scriptbuilder.h>
+#include "scriptapi.h"
 
 // Script Engine
 asIScriptEngine *scriptengine;
@@ -26,6 +22,36 @@ void scriptmsgcallback(const asSMessageInfo *msg, void *param) {
 // wrapper around conoutf
 void scriptlogfunc(const char* msg) {
 	conoutf(msg);
+}
+
+// Initialize the angelscript engine.
+bool initscriptengine() {
+	scriptengine = asCreateScriptEngine();
+
+	int r = scriptengine->SetMessageCallback(asFUNCTION(scriptmsgcallback), 0, asCALL_CDECL);
+	if (r < 0)
+		return false;
+
+	// Use the script type from the angelscript addon
+	// TODO: Might we be better making it ourselves?
+	RegisterStdString(scriptengine);
+
+	// Register C functions
+	r = scriptengine->RegisterGlobalFunction("void log(const char *in)", asFUNCTION(scriptlogfunc), asCALL_CDECL);
+	if (r < 0)
+		return false;
+	
+	// Run builtin
+	scriptrunfile("script/builtin.as");
+
+	return true;
+}
+
+void destructscriptengine() {
+	if (scriptengine)
+		scriptengine->ShutDownAndRelease();
+	if (scriptcontext)
+		scriptcontext->Release();
 }
 
 bool scriptrunfile(const char *fp) {
@@ -73,34 +99,4 @@ bool scriptrunfile(const char *fp) {
 	scriptcontext->Release();
 
 	return true;
-}
-
-// Initialize the angelscript engine.
-bool initscriptengine() {
-	scriptengine = asCreateScriptEngine();
-
-	int r = scriptengine->SetMessageCallback(asFUNCTION(scriptmsgcallback), 0, asCALL_CDECL);
-	if (r < 0)
-		return false;
-
-	// Use the script type from the angelscript addon
-	// TODO: Might we be better making it ourselves?
-	RegisterStdString(scriptengine);
-
-	// Register C functions
-	r = scriptengine->RegisterGlobalFunction("void log(const char *in)", asFUNCTION(scriptlogfunc), asCALL_CDECL);
-	if (r < 0)
-		return false;
-	
-	// Run builtin
-	scriptrunfile("script/builtin.as");
-
-	return true;
-}
-
-void destructscriptengine() {
-	if (scriptengine)
-		scriptengine->ShutDownAndRelease();
-	if (scriptcontext)
-		scriptcontext->Release();
 }
