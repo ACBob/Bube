@@ -62,5 +62,5 @@ list(TRANSFORM clientSources PREPEND "src/")
 add_executable(client ${clientSources})
 
 target_include_directories(client PUBLIC src/include src/shared src/engine src/fpsgame src/thirdparty/enet/include src/thirdparty/SDL src/thirdparty/FreeType/include)
-target_link_libraries(client enet SDL2 z rt GL SDL2_mixer SDL2_image SDL2_ttf freetype)
+target_link_libraries(client enet SDL2 z rt GL SDL2_mixer SDL2_image SDL2_ttf freetype angelscript)
 
