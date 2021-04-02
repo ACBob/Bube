@@ -394,7 +394,7 @@ struct iqm : skelloader<iqm>
 				goto error;
 			if (hdr.filesize > (16 << 20))
 				goto error; // sanity check... don't load files bigger than 16 MB
-			buf = new (false) uchar[hdr.filesize];
+			buf = new uchar[hdr.filesize];
 			if (!buf || f->read(buf + sizeof(hdr), hdr.filesize - sizeof(hdr)) != hdr.filesize - sizeof(hdr))
 				goto error;
 

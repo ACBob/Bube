@@ -1074,7 +1074,7 @@ void loadvslot(stream *f, VSlot &vs, int changed)
 
 void loadvslots(stream *f, int numvslots)
 {
-	int *prev = new (false) int[numvslots];
+	int *prev = new int[numvslots];
 	if (!prev)
 		return;
 	memset(prev, -1, numvslots * sizeof(int));
