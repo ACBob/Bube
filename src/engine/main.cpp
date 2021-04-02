@@ -26,7 +26,6 @@ void cleanup()
 	clear_mdls();
 	extern void clear_sound();
 	clear_sound();
-	destructscriptengine();
 	closelogfile();
 #ifdef __APPLE__
 	if (screen)
@@ -1492,6 +1491,7 @@ int main(int argc, char **argv)
 		logoutf("init: angelscript");
 		if (!initscriptengine())
 			fatal("cannot initialize scripting");
+		atexit(destructscriptengine);
 
 		inbetweenframes = true;
 		renderbackground("initializing...");

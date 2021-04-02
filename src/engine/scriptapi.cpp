@@ -20,7 +20,7 @@ void scriptmsgcallback(const asSMessageInfo *msg, void *param) {
 	conoutf(type, "%s (%d, %d) : %s\n", msg->section, msg->row, msg->col, msg->message);
 }
 // wrapper around conoutf
-void scriptlogfunc(const char* msg) {
+void scriptlogfunc(const string &msg) {
 	conoutf(msg);
 }
 
@@ -37,7 +37,7 @@ bool initscriptengine() {
 	RegisterStdString(scriptengine);
 
 	// Register C functions
-	r = scriptengine->RegisterGlobalFunction("void log(const char *in)", asFUNCTION(scriptlogfunc), asCALL_CDECL);
+	r = scriptengine->RegisterGlobalFunction("void log(const string &in)", asFUNCTION(scriptlogfunc), asCALL_CDECL);
 	if (r < 0)
 		return false;
 	
@@ -48,10 +48,7 @@ bool initscriptengine() {
 }
 
 void destructscriptengine() {
-	if (scriptengine)
-		scriptengine->ShutDownAndRelease();
-	if (scriptcontext)
-		scriptcontext->Release();
+	scriptengine->ShutDownAndRelease();
 }
 
 bool scriptrunfile(const char *fp) {
