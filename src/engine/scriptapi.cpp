@@ -20,8 +20,8 @@ void scriptmsgcallback(const asSMessageInfo *msg, void *param) {
 	conoutf(type, "%s (%d, %d) : %s\n", msg->section, msg->row, msg->col, msg->message);
 }
 // wrapper around conoutf
-void scriptlogfunc(const string &msg) {
-	conoutf(msg);
+void scriptlogfunc(int mode, const std::string &msg) {
+	conoutf(mode, msg.c_str());
 }
 
 // Initialize the angelscript engine.
@@ -37,9 +37,19 @@ bool initscriptengine() {
 	RegisterStdString(scriptengine);
 
 	// Register C functions
-	r = scriptengine->RegisterGlobalFunction("void log(const string &in)", asFUNCTION(scriptlogfunc), asCALL_CDECL);
+	r = scriptengine->RegisterGlobalFunction("void log(int mode, const string &in)", asFUNCTION(scriptlogfunc), asCALL_CDECL);
 	if (r < 0)
 		return false;
+	
+	// Register the log flags
+	// TODO: Maybe do this in builtin?
+	scriptengine->RegisterEnum("logmode");
+	scriptengine->RegisterEnumValue("logmode", "CON_INFO", CON_INFO);
+	scriptengine->RegisterEnumValue("logmode", "CON_WARN", CON_WARN);
+	scriptengine->RegisterEnumValue("logmode", "CON_ERROR", CON_ERROR);
+	scriptengine->RegisterEnumValue("logmode", "CON_DEBUG", CON_DEBUG);
+	scriptengine->RegisterEnumValue("logmode", "CON_INIT", CON_INIT);
+	scriptengine->RegisterEnumValue("logmode", "CON_ECHO", CON_ECHO);
 	
 	// Run builtin
 	scriptrunfile("script/builtin.as");
