@@ -59,13 +59,8 @@ set(clientSources
 	fpsgame/weapon.cpp
 )
 list(TRANSFORM clientSources PREPEND "src/")
-
-if (BUBE_COMPILE_LUA)
-	list(APPEND clientSources "src/engine/luaapi.cpp")
-endif()
-
 add_executable(client ${clientSources})
 
 target_include_directories(client PUBLIC src/include src/shared src/engine src/fpsgame src/thirdparty/enet/include src/thirdparty/SDL src/thirdparty/FreeType/include)
-target_link_libraries(client lua5.1 enet SDL2 z rt GL SDL2_mixer SDL2_image SDL2_ttf freetype)
+target_link_libraries(client enet SDL2 z rt GL SDL2_mixer SDL2_image SDL2_ttf freetype)
 

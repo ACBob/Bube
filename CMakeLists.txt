@@ -10,7 +10,6 @@ add_subdirectory(src/thirdparty/FreeType)
 
 option(BUBE_BUILD_CLIENT "Enable building the client" ON)
 option(BUBE_BUILD_SERVER "Enable building the dedicated server" ON)
-option(BUBE_COMPILE_LUA "Enable compilation of the Lua Api. (Enables/Disables Lua)" ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/game)
 

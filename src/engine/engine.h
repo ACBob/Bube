@@ -3,7 +3,6 @@
 
 #include "cube.h"
 #include "world.h"
-#include "luaapi.h"
 
 #ifndef STANDALONE
 
