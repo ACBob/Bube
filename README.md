@@ -14,11 +14,10 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
 ## Planned Changes (No Order)
 - [ ] Improve certain hard-coded limitations.
 - [x] Add a scripting language.\
-      *Lua 5.1!*
 - [ ] Extend / Replace GUI System.\
       *Not going to happen soon!*
 - [ ] Source:tm: Engine Style Entity I/O.\
-      *Connected to Lua?*
+      *Connected to scripts? See [#3](https://github.com/ACBob/Bube/issues/3)*
 
 **Note:** Backwards-compatability with Cube 2 engine games is NOT garunteed, or a goal. If something works, It's a minor miracle.
 

@@ -653,12 +653,6 @@ namespace recorder
 	extern void cleanup();
 } // namespace recorder
 
-// Lua api
-// extern lua_State *l;
-extern bool init_luaapi();
-extern const char *luaapi_geterror();
-extern bool luaapi_dofile(const char *fp);
-
 #endif
 
 #endif
