@@ -50,6 +50,8 @@ bool initscriptengine() {
 	scriptengine->RegisterEnumValue("logmode", "CON_DEBUG", CON_DEBUG);
 	scriptengine->RegisterEnumValue("logmode", "CON_INIT", CON_INIT);
 	scriptengine->RegisterEnumValue("logmode", "CON_ECHO", CON_ECHO);
+
+	scriptengine->RegisterGlobalFunction("void execute(const string &in)", asFUNCTION(scriptexecute), asCALL_CDECL);
 	
 	// Run builtin
 	scriptrunfile("script/builtin.as");
@@ -108,3 +110,9 @@ bool scriptrunfile(const char *fp) {
 	return true;
 }
 COMMANDN(script, scriptrunfile, "s");
+
+void scriptexecute(std::string &cmd) {
+	const char *command = cmd.c_str();
+
+	execute(command);
+}

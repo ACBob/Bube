@@ -18,5 +18,6 @@ bool scriptrunfile(const char *fp);
 bool initscriptengine();
 
 void destructscriptengine();
+void scriptexecute(std::string &cmd); // Mis-leading name, allows the script to execute a command.
 
 #endif // SCRIPTAPI_H
