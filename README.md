@@ -8,8 +8,8 @@ This is *not* Sauerbraten, You can find that project [here](http://sauerbraten.o
  * Switched to CMake :feelsgood:
  * Sounds have been converted from IDs to Names. Internally, the sound system still uses ids, but the rest of the engine uses names. Much better, IMO.
  * The error texture can now be generated at run-time, removing the need to have a `notexture.png`. Indeed, the base game here does not supply one.
- * Added some mock Lua 5.1 support, but no mappings. To test a lua file, run `/luadofile <fp>`, or `/luado <lua>`.
  * Fonts are now loaded with FreeType! Gone are the days of awful bitmap fonts.
+ * AngelScript scripting. To run a file, run `/script <fp>`.
 
 ## Planned Changes (No Order)
 - [ ] Improve certain hard-coded limitations.
@@ -51,6 +51,6 @@ freely, subject to the following restrictions:
 Additionally, Sauerbraten (and by extension Bube) uses the ENet Network Library.\
 ENet is licensed under the MIT License, and is compatible with the zLib License.
 
-[Lua](https://www.lua.org/license.html) is licensed under the MIT license, but Bube does not provide sources for it. It is up to you to install and make available the Lua 5.1 sources.
+[AngelScript](http://www.angelcode.com/angelscript/) is licensed under the zLib license.
 
 [FreeType](https://www.freetype.org/) is licensed under the FLT license.

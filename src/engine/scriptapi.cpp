@@ -107,3 +107,4 @@ bool scriptrunfile(const char *fp) {
 
 	return true;
 }
+COMMANDN(script, scriptrunfile, "s");
