@@ -8,9 +8,13 @@ set(serverSources
 	engine/command.cpp
 	engine/server.cpp
 	engine/worldio.cpp
+	engine/entities.cpp
 	fpsgame/server.cpp
 
 	engine/scriptapi.cpp
+
+	# entities
+	fpsgame/bubeplayer.cpp
 )
 list(TRANSFORM serverSources PREPEND "src/")
 

@@ -46,6 +46,7 @@ set(clientSources
 	engine/water.cpp
 	engine/world.cpp
 	engine/worldio.cpp
+	engine/entities.cpp
 	fpsgame/ai.cpp
 	fpsgame/client.cpp
 	fpsgame/fps.cpp
@@ -56,6 +57,9 @@ set(clientSources
 	fpsgame/server.cpp
 	fpsgame/waypoint.cpp
 	fpsgame/weapon.cpp
+
+	# entities
+	fpsgame/bubeplayer.cpp
 
 	engine/scriptapi.cpp
 )
