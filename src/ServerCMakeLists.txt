@@ -8,7 +8,6 @@ set(serverSources
 	engine/command.cpp
 	engine/server.cpp
 	engine/worldio.cpp
-	fpsgame/entities.cpp
 	fpsgame/server.cpp
 
 	engine/scriptapi.cpp
