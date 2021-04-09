@@ -38,253 +38,254 @@ namespace game
 	bool monsterhurt;
 	vec monsterhurtpos;
 
-	struct monster : fpsent
+	class monster : public fpsent
 	{
-		int monsterstate; // one of M_*, M_NONE means human
+		public:
+			int monsterstate; // one of M_*, M_NONE means human
 
-		int mtype, tag;	  // see monstertypes table
-		fpsent *enemy;	  // monster wants to kill this entity
-		float targetyaw;  // monster wants to look in this direction
-		int trigger;	  // millis at which transition to another monsterstate takes place
-		vec attacktarget; // delayed attacks
-		int anger;		  // how many times already hit by fellow monster
-		physent *stacked;
-		vec stackpos;
+			int mtype, tag;	  // see monstertypes table
+			fpsent *enemy;	  // monster wants to kill this entity
+			float targetyaw;  // monster wants to look in this direction
+			int trigger;	  // millis at which transition to another monsterstate takes place
+			vec attacktarget; // delayed attacks
+			int anger;		  // how many times already hit by fellow monster
+			physent *stacked;
+			vec stackpos;
 
-		monster(int _type, int _yaw, int _tag, int _state, int _trigger, int _move)
-			: monsterstate(_state), tag(_tag), stacked(NULL), stackpos(0, 0, 0)
-		{
-			type = ENT_AI;
-			respawn();
-			if (_type >= NUMMONSTERTYPES || _type < 0)
+			monster(int _type, int _yaw, int _tag, int _state, int _trigger, int _move)
+				: monsterstate(_state), tag(_tag), stacked(NULL), stackpos(0, 0, 0)
 			{
-				conoutf(CON_WARN, "warning: unknown monster in spawn: %d", _type);
-				_type = 0;
-			}
-			mtype = _type;
-			const monstertype &t = monstertypes[mtype];
-			eyeheight = 8.0f;
-			aboveeye = 7.0f;
-			radius *= t.bscale / 10.0f;
-			xradius = yradius = radius;
-			eyeheight *= t.bscale / 10.0f;
-			aboveeye *= t.bscale / 10.0f;
-			weight = t.weight;
-			if (_state != M_SLEEP)
-				spawnplayer(this);
-			trigger = lastmillis + _trigger;
-			targetyaw = yaw = (float)_yaw;
-			move = _move;
-			enemy = player1;
-			gunselect = t.gun;
-			maxspeed = (float)t.speed * 4;
-			health = t.health;
-			armour = 0;
-			loopi(NUMGUNS) ammo[i] = 10000;
-			pitch = 0;
-			roll = 0;
-			state = CS_ALIVE;
-			anger = 0;
-			copystring(name, t.name);
-		}
-
-		void normalize_yaw(float angle)
-		{
-			while (yaw < angle - 180.0f)
-				yaw += 360.0f;
-			while (yaw > angle + 180.0f)
-				yaw -= 360.0f;
-		}
-
-		// monster AI is sequenced using transitions: they are in a particular state where
-		// they execute a particular behaviour until the trigger time is hit, and then they
-		// reevaluate their situation based on the current state, the environment etc., and
-		// transition to the next state. Transition timeframes are parametrized by difficulty
-		// level (skill), faster transitions means quicker decision making means tougher AI.
-
-		void transition(int _state, int _moving, int n,
-						int r) // n = at skill 0, n/2 = at skill 10, r = added random factor
-		{
-			monsterstate = _state;
-			move = _moving;
-			n = n * 130 / 100;
-			trigger = lastmillis + n - skill * (n / 16) + rnd(r + 1);
-		}
-
-		void monsteraction(int curtime) // main AI thinking routine, called every frame for every monster
-		{
-			if (enemy->state == CS_DEAD)
-			{
+				type = ENT_AI;
+				respawn();
+				if (_type >= NUMMONSTERTYPES || _type < 0)
+				{
+					conoutf(CON_WARN, "warning: unknown monster in spawn: %d", _type);
+					_type = 0;
+				}
+				mtype = _type;
+				const monstertype &t = monstertypes[mtype];
+				eyeheight = 8.0f;
+				aboveeye = 7.0f;
+				radius *= t.bscale / 10.0f;
+				xradius = yradius = radius;
+				eyeheight *= t.bscale / 10.0f;
+				aboveeye *= t.bscale / 10.0f;
+				weight = t.weight;
+				if (_state != M_SLEEP)
+					spawnplayer(this);
+				trigger = lastmillis + _trigger;
+				targetyaw = yaw = (float)_yaw;
+				move = _move;
 				enemy = player1;
+				gunselect = t.gun;
+				maxspeed = (float)t.speed * 4;
+				health = t.health;
+				armour = 0;
+				loopi(NUMGUNS) ammo[i] = 10000;
+				pitch = 0;
+				roll = 0;
+				state = CS_ALIVE;
 				anger = 0;
+				copystring(name, t.name);
 			}
-			normalize_yaw(targetyaw);
-			if (targetyaw > yaw) // slowly turn monster towards his target
-			{
-				yaw += curtime * 0.5f;
-				if (targetyaw < yaw)
-					yaw = targetyaw;
-			}
-			else
-			{
-				yaw -= curtime * 0.5f;
-				if (targetyaw > yaw)
-					yaw = targetyaw;
-			}
-			float dist = enemy->o.dist(o);
-			if (monsterstate != M_SLEEP)
-				pitch = asin((enemy->o.z - o.z) / dist) / RAD;
 
-			if (blocked) // special case: if we run into scenery
+			void normalize_yaw(float angle)
 			{
-				blocked = false;
-				if (!rnd(20000 / monstertypes[mtype].speed)) // try to jump over obstackle (rare)
+				while (yaw < angle - 180.0f)
+					yaw += 360.0f;
+				while (yaw > angle + 180.0f)
+					yaw -= 360.0f;
+			}
+
+			// monster AI is sequenced using transitions: they are in a particular state where
+			// they execute a particular behaviour until the trigger time is hit, and then they
+			// reevaluate their situation based on the current state, the environment etc., and
+			// transition to the next state. Transition timeframes are parametrized by difficulty
+			// level (skill), faster transitions means quicker decision making means tougher AI.
+
+			void transition(int _state, int _moving, int n,
+							int r) // n = at skill 0, n/2 = at skill 10, r = added random factor
+			{
+				monsterstate = _state;
+				move = _moving;
+				n = n * 130 / 100;
+				trigger = lastmillis + n - skill * (n / 16) + rnd(r + 1);
+			}
+
+			void monsteraction(int curtime) // main AI thinking routine, called every frame for every monster
+			{
+				if (enemy->state == CS_DEAD)
 				{
-					jumping = true;
+					enemy = player1;
+					anger = 0;
 				}
-				else if (trigger < lastmillis &&
-						 (monsterstate != M_HOME || !rnd(5))) // search for a way around (common)
+				normalize_yaw(targetyaw);
+				if (targetyaw > yaw) // slowly turn monster towards his target
 				{
-					targetyaw += 90 + rnd(180); // patented "random walk" AI pathfinding (tm) ;)
-					transition(M_SEARCH, 1, 100, 1000);
+					yaw += curtime * 0.5f;
+					if (targetyaw < yaw)
+						yaw = targetyaw;
 				}
-			}
-
-			float enemyyaw = -atan2(enemy->o.x - o.x, enemy->o.y - o.y) / RAD;
-
-			switch (monsterstate)
-			{
-				case M_PAIN:
-				case M_ATTACKING:
-				case M_SEARCH:
-					if (trigger < lastmillis)
-						transition(M_HOME, 1, 100, 200);
-					break;
-
-				case M_SLEEP: // state classic sp monster start in, wait for visual contact
+				else
 				{
-					if (editmode)
+					yaw -= curtime * 0.5f;
+					if (targetyaw > yaw)
+						yaw = targetyaw;
+				}
+				float dist = enemy->o.dist(o);
+				if (monsterstate != M_SLEEP)
+					pitch = asin((enemy->o.z - o.z) / dist) / RAD;
+
+				if (blocked) // special case: if we run into scenery
+				{
+					blocked = false;
+					if (!rnd(20000 / monstertypes[mtype].speed)) // try to jump over obstackle (rare)
+					{
+						jumping = true;
+					}
+					else if (trigger < lastmillis &&
+							(monsterstate != M_HOME || !rnd(5))) // search for a way around (common)
+					{
+						targetyaw += 90 + rnd(180); // patented "random walk" AI pathfinding (tm) ;)
+						transition(M_SEARCH, 1, 100, 1000);
+					}
+				}
+
+				float enemyyaw = -atan2(enemy->o.x - o.x, enemy->o.y - o.y) / RAD;
+
+				switch (monsterstate)
+				{
+					case M_PAIN:
+					case M_ATTACKING:
+					case M_SEARCH:
+						if (trigger < lastmillis)
+							transition(M_HOME, 1, 100, 200);
 						break;
-					normalize_yaw(enemyyaw);
-					float angle = (float)fabs(enemyyaw - yaw);
-					if (dist < 32 // the better the angle to the player, the further the monster can see/hear
-						|| (dist < 64 && angle < 135) || (dist < 128 && angle < 90) || (dist < 256 && angle < 45) ||
-						angle < 10 || (monsterhurt && o.dist(monsterhurtpos) < 128))
+
+					case M_SLEEP: // state classic sp monster start in, wait for visual contact
 					{
-						vec target;
-						if (raycubelos(o, enemy->o, target))
+						if (editmode)
+							break;
+						normalize_yaw(enemyyaw);
+						float angle = (float)fabs(enemyyaw - yaw);
+						if (dist < 32 // the better the angle to the player, the further the monster can see/hear
+							|| (dist < 64 && angle < 135) || (dist < 128 && angle < 90) || (dist < 256 && angle < 45) ||
+							angle < 10 || (monsterhurt && o.dist(monsterhurtpos) < 128))
 						{
-							transition(M_HOME, 1, 500, 200);
-							playsound(S_GRUNT1 + rnd(2), &o);
+							vec target;
+							if (raycubelos(o, enemy->o, target))
+							{
+								transition(M_HOME, 1, 500, 200);
+								playsound(S_GRUNT1 + rnd(2), &o);
+							}
 						}
+						break;
 					}
-					break;
+
+					case M_AIMING: // this state is the delay between wanting to shoot and actually firing
+						if (trigger < lastmillis)
+						{
+							lastaction = 0;
+							attacking = true;
+							shoot(this, attacktarget);
+							transition(M_ATTACKING, 0, 600, 0);
+						}
+						break;
+
+					case M_HOME: // monster has visual contact, heads straight for player and may want to shoot at any time
+						targetyaw = enemyyaw;
+						if (trigger < lastmillis)
+						{
+							vec target;
+							if (!raycubelos(o, enemy->o, target)) // no visual contact anymore, let monster get as close as
+																// possible then search for player
+							{
+								transition(M_HOME, 1, 800, 500);
+							}
+							else
+							{
+								bool melee = false, longrange = false;
+								switch (monstertypes[mtype].gun)
+								{
+									case GUN_BITE:
+									case GUN_FIST:
+										melee = true;
+										break;
+									case GUN_RIFLE:
+										longrange = true;
+										break;
+								}
+								// the closer the monster is the more likely he wants to shoot,
+								if ((!melee || dist < 20) &&
+									!rnd(longrange ? (int)dist / 12 + 1 : min((int)dist / 12 + 1, 6)) &&
+									enemy->state == CS_ALIVE) // get ready to fire
+								{
+									attacktarget = target;
+									transition(M_AIMING, 0, monstertypes[mtype].lag, 10);
+								}
+								else // track player some more
+								{
+									transition(M_HOME, 1, monstertypes[mtype].rate, 0);
+								}
+							}
+						}
+						break;
 				}
 
-				case M_AIMING: // this state is the delay between wanting to shoot and actually firing
-					if (trigger < lastmillis)
-					{
-						lastaction = 0;
-						attacking = true;
-						shoot(this, attacktarget);
-						transition(M_ATTACKING, 0, 600, 0);
-					}
-					break;
-
-				case M_HOME: // monster has visual contact, heads straight for player and may want to shoot at any time
-					targetyaw = enemyyaw;
-					if (trigger < lastmillis)
-					{
-						vec target;
-						if (!raycubelos(o, enemy->o, target)) // no visual contact anymore, let monster get as close as
-															  // possible then search for player
-						{
-							transition(M_HOME, 1, 800, 500);
-						}
-						else
-						{
-							bool melee = false, longrange = false;
-							switch (monstertypes[mtype].gun)
-							{
-								case GUN_BITE:
-								case GUN_FIST:
-									melee = true;
-									break;
-								case GUN_RIFLE:
-									longrange = true;
-									break;
-							}
-							// the closer the monster is the more likely he wants to shoot,
-							if ((!melee || dist < 20) &&
-								!rnd(longrange ? (int)dist / 12 + 1 : min((int)dist / 12 + 1, 6)) &&
-								enemy->state == CS_ALIVE) // get ready to fire
-							{
-								attacktarget = target;
-								transition(M_AIMING, 0, monstertypes[mtype].lag, 10);
-							}
-							else // track player some more
-							{
-								transition(M_HOME, 1, monstertypes[mtype].rate, 0);
-							}
-						}
-					}
-					break;
-			}
-
-			if (move || maymove() || (stacked && (stacked->state != CS_ALIVE || stackpos != stacked->o)))
-			{
-				vec pos = feetpos();
-				loopv(teleports) // equivalent of player entity touch, but only teleports are used
+				if (move || maymove() || (stacked && (stacked->state != CS_ALIVE || stackpos != stacked->o)))
 				{
-					entity &e = *entities::ents[teleports[i]];
-					float dist = e.o.dist(pos);
-					if (dist < 16)
-						entities::teleport(teleports[i], this);
+					vec pos = feetpos();
+					loopv(teleports) // equivalent of player entity touch, but only teleports are used
+					{
+						entity &e = *entities::ents[teleports[i]];
+						float dist = e.o.dist(pos);
+						if (dist < 16)
+							entities::teleport(teleports[i], this);
+					}
+
+					if (physsteps > 0)
+						stacked = NULL;
+					moveplayer(this, 1, true); // use physics to move monster
 				}
-
-				if (physsteps > 0)
-					stacked = NULL;
-				moveplayer(this, 1, true); // use physics to move monster
 			}
-		}
 
-		void monsterpain(int damage, fpsent *d)
-		{
-			if (d->type == ENT_AI) // a monster hit us
+			void monsterpain(int damage, fpsent *d)
 			{
-				if (this != d) // guard for RL guys shooting themselves :)
+				if (d->type == ENT_AI) // a monster hit us
 				{
-					anger++; // don't attack straight away, first get angry
-					int _anger = d->type == ENT_AI && mtype == ((monster *)d)->mtype ? anger / 2 : anger;
-					if (_anger >= monstertypes[mtype].loyalty)
-						enemy = d; // monster infight if very angry
+					if (this != d) // guard for RL guys shooting themselves :)
+					{
+						anger++; // don't attack straight away, first get angry
+						int _anger = d->type == ENT_AI && mtype == ((monster *)d)->mtype ? anger / 2 : anger;
+						if (_anger >= monstertypes[mtype].loyalty)
+							enemy = d; // monster infight if very angry
+					}
+				}
+				else if (d->type == ENT_PLAYER) // player hit us
+				{
+					anger = 0;
+					enemy = d;
+					monsterhurt = true;
+					monsterhurtpos = o;
+				}
+				damageeffect(damage, this);
+				if ((health -= damage) <= 0)
+				{
+					state = CS_DEAD;
+					lastpain = lastmillis;
+					playsound(monstertypes[mtype].diesound, &o);
+					monsterkilled();
+					gibeffect(max(-health, 0), vel, this);
+
+					defformatstring(id, "monster_dead_%d", tag);
+					execident(id);
+				}
+				else
+				{
+					transition(M_PAIN, 0, monstertypes[mtype].pain, 200); // in this state monster won't attack
+					playsound(monstertypes[mtype].painsound, &o);
 				}
 			}
-			else if (d->type == ENT_PLAYER) // player hit us
-			{
-				anger = 0;
-				enemy = d;
-				monsterhurt = true;
-				monsterhurtpos = o;
-			}
-			damageeffect(damage, this);
-			if ((health -= damage) <= 0)
-			{
-				state = CS_DEAD;
-				lastpain = lastmillis;
-				playsound(monstertypes[mtype].diesound, &o);
-				monsterkilled();
-				gibeffect(max(-health, 0), vel, this);
-
-				defformatstring(id, "monster_dead_%d", tag);
-				execident(id);
-			}
-			else
-			{
-				transition(M_PAIN, 0, monstertypes[mtype].pain, 200); // in this state monster won't attack
-				playsound(monstertypes[mtype].painsound, &o);
-			}
-		}
 	};
 
 	void stackmonster(monster *d, physent *o)

@@ -141,66 +141,67 @@ enum
 	COLLIDE_ELLIPSE_PRECISE
 };
 
-struct physent // base entity type, can be affected by physics
+class physent // base entity type, can be affected by physics
 {
-	vec o, vel, falling;  // origin, velocity
-	vec deltapos, newpos; // movement interpolation
-	float yaw, pitch, roll;
-	float maxspeed;					   // cubes per second, 100 for player
-	float radius, eyeheight, aboveeye; // bounding box size
-	float xradius, yradius, zmargin;
-	vec floor; // the normal of floor the dynent is on
+	public:
+		vec o, vel, falling;  // origin, velocity
+		vec deltapos, newpos; // movement interpolation
+		float yaw, pitch, roll;
+		float maxspeed;					   // cubes per second, 100 for player
+		float radius, eyeheight, aboveeye; // bounding box size
+		float xradius, yradius, zmargin;
+		vec floor; // the normal of floor the dynent is on
 
-	ushort timeinair;
-	uchar inwater;
-	bool jumping;
-	schar move, strafe;
+		ushort timeinair;
+		uchar inwater;
+		bool jumping;
+		schar move, strafe;
 
-	uchar physstate;		// one of PHYS_* above
-	uchar state, editstate; // one of CS_* above
-	uchar type;				// one of ENT_* above
-	uchar collidetype;		// one of COLLIDE_* above
+		uchar physstate;		// one of PHYS_* above
+		uchar state, editstate; // one of CS_* above
+		uchar type;				// one of ENT_* above
+		uchar collidetype;		// one of COLLIDE_* above
 
-	bool blocked; // used by physics to signal ai
+		bool blocked; // used by physics to signal ai
 
-	physent()
-		: o(0, 0, 0), deltapos(0, 0, 0), newpos(0, 0, 0), yaw(0), pitch(0), roll(0), maxspeed(100), radius(4.1f),
-		  eyeheight(14), aboveeye(1), xradius(4.1f), yradius(4.1f), zmargin(0), state(CS_ALIVE), editstate(CS_ALIVE),
-		  type(ENT_PLAYER), collidetype(COLLIDE_ELLIPSE), blocked(false)
-	{
-		reset();
-	}
+		physent()
+			: o(0, 0, 0), deltapos(0, 0, 0), newpos(0, 0, 0), yaw(0), pitch(0), roll(0), maxspeed(100), radius(4.1f),
+			eyeheight(14), aboveeye(1), xradius(4.1f), yradius(4.1f), zmargin(0), state(CS_ALIVE), editstate(CS_ALIVE),
+			type(ENT_PLAYER), collidetype(COLLIDE_ELLIPSE), blocked(false)
+		{
+			reset();
+		}
 
-	void resetinterp()
-	{
-		newpos = o;
-		deltapos = vec(0, 0, 0);
-	}
+		void resetinterp()
+		{
+			newpos = o;
+			deltapos = vec(0, 0, 0);
+		}
 
-	void reset()
-	{
-		inwater = 0;
-		timeinair = 0;
-		jumping = false;
-		strafe = move = 0;
-		physstate = PHYS_FALL;
-		vel = falling = vec(0, 0, 0);
-		floor = vec(0, 0, 1);
-	}
+		void reset()
+		{
+			inwater = 0;
+			timeinair = 0;
+			jumping = false;
+			strafe = move = 0;
+			physstate = PHYS_FALL;
+			vel = falling = vec(0, 0, 0);
+			floor = vec(0, 0, 1);
+		}
 
-	vec feetpos(float offset = 0) const
-	{
-		return vec(o).add(vec(0, 0, offset - eyeheight));
-	}
-	vec headpos(float offset = 0) const
-	{
-		return vec(o).add(vec(0, 0, offset));
-	}
+		vec feetpos(float offset = 0) const
+		{
+			return vec(o).add(vec(0, 0, offset - eyeheight));
+		}
+		vec headpos(float offset = 0) const
+		{
+			return vec(o).add(vec(0, 0, offset));
+		}
 
-	bool maymove() const
-	{
-		return timeinair || physstate < PHYS_FLOOR || vel.squaredlen() > 1e-4f || deltapos.squaredlen() > 1e-4f;
-	}
+		bool maymove() const
+		{
+			return timeinair || physstate < PHYS_FLOOR || vel.squaredlen() > 1e-4f || deltapos.squaredlen() > 1e-4f;
+		}
 };
 
 enum
@@ -318,46 +319,47 @@ struct animinterpinfo // used for animation blending of animated characters
 struct occludequery;
 struct ragdolldata;
 
-struct dynent : physent // animated characters, or characters that can receive input
+class dynent : public physent // animated characters, or characters that can receive input
 {
-	bool k_left, k_right, k_up, k_down; // see input code
+	public:
+		bool k_left, k_right, k_up, k_down; // see input code
 
-	entitylight light;
-	animinterpinfo animinterp[MAXANIMPARTS];
-	ragdolldata *ragdoll;
-	occludequery *query;
-	int lastrendered;
-	uchar occluded;
+		entitylight light;
+		animinterpinfo animinterp[MAXANIMPARTS];
+		ragdolldata *ragdoll;
+		occludequery *query;
+		int lastrendered;
+		uchar occluded;
 
-	dynent() : ragdoll(NULL), query(NULL), lastrendered(0), occluded(0)
-	{
-		reset();
-	}
+		dynent() : ragdoll(NULL), query(NULL), lastrendered(0), occluded(0)
+		{
+			reset();
+		}
 
-	~dynent()
-	{
+		~dynent()
+		{
 #ifndef STANDALONE
-		extern void cleanragdoll(dynent * d);
-		if (ragdoll)
-			cleanragdoll(this);
+			extern void cleanragdoll(dynent * d);
+			if (ragdoll)
+				cleanragdoll(this);
 #endif
-	}
+		}
 
-	void stopmoving()
-	{
-		k_left = k_right = k_up = k_down = jumping = false;
-		move = strafe = 0;
-	}
+		void stopmoving()
+		{
+			k_left = k_right = k_up = k_down = jumping = false;
+			move = strafe = 0;
+		}
 
-	void reset()
-	{
-		physent::reset();
-		stopmoving();
-		loopi(MAXANIMPARTS) animinterp[i].reset();
-	}
+		void reset()
+		{
+			physent::reset();
+			stopmoving();
+			loopi(MAXANIMPARTS) animinterp[i].reset();
+		}
 
-	vec abovehead()
-	{
-		return vec(o).add(vec(0, 0, aboveeye + 4));
-	}
+		vec abovehead()
+		{
+			return vec(o).add(vec(0, 0, aboveeye + 4));
+		}
 };

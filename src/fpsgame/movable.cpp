@@ -15,78 +15,79 @@ namespace game
 		EXPLODEDELAY = 200
 	};
 
-	struct movable : dynent
+	class movable : public dynent
 	{
-		int etype, mapmodel, health, weight, exploding, tag, dir;
-		physent *stacked;
-		vec stackpos;
+		public:
+			int etype, mapmodel, health, weight, exploding, tag, dir;
+			physent *stacked;
+			vec stackpos;
 
-		movable(const entity &e)
-			: etype(e.type), mapmodel(e.attr2), health(e.type == BARREL ? (e.attr4 ? e.attr4 : BARRELHEALTH) : 0),
-			  weight(e.type == PLATFORM || e.type == ELEVATOR
-						 ? PLATFORMWEIGHT
-						 : (e.attr3 ? e.attr3 : (e.type == BARREL ? BARRELWEIGHT : BOXWEIGHT))),
-			  exploding(0), tag(e.type == PLATFORM || e.type == ELEVATOR ? e.attr3 : 0),
-			  dir(e.type == PLATFORM || e.type == ELEVATOR ? (e.attr4 < 0 ? -1 : 1) : 0), stacked(NULL),
-			  stackpos(0, 0, 0)
-		{
-			state = CS_ALIVE;
-			type = ENT_INANIMATE;
-			yaw = e.attr1;
-			if (e.type == PLATFORM || e.type == ELEVATOR)
+			movable(const entity &e)
+				: etype(e.type), mapmodel(e.attr2), health(e.type == BARREL ? (e.attr4 ? e.attr4 : BARRELHEALTH) : 0),
+				weight(e.type == PLATFORM || e.type == ELEVATOR
+							? PLATFORMWEIGHT
+							: (e.attr3 ? e.attr3 : (e.type == BARREL ? BARRELWEIGHT : BOXWEIGHT))),
+				exploding(0), tag(e.type == PLATFORM || e.type == ELEVATOR ? e.attr3 : 0),
+				dir(e.type == PLATFORM || e.type == ELEVATOR ? (e.attr4 < 0 ? -1 : 1) : 0), stacked(NULL),
+				stackpos(0, 0, 0)
 			{
-				maxspeed = e.attr4 ? fabs(float(e.attr4)) : PLATFORMSPEED;
-				if (tag)
-					vel = vec(0, 0, 0);
-				else if (e.type == PLATFORM)
+				state = CS_ALIVE;
+				type = ENT_INANIMATE;
+				yaw = e.attr1;
+				if (e.type == PLATFORM || e.type == ELEVATOR)
 				{
-					vecfromyawpitch(yaw, 0, 1, 0, vel);
-					vel.mul(dir * maxspeed);
+					maxspeed = e.attr4 ? fabs(float(e.attr4)) : PLATFORMSPEED;
+					if (tag)
+						vel = vec(0, 0, 0);
+					else if (e.type == PLATFORM)
+					{
+						vecfromyawpitch(yaw, 0, 1, 0, vel);
+						vel.mul(dir * maxspeed);
+					}
+					else
+						vel = vec(0, 0, dir * maxspeed);
 				}
-				else
-					vel = vec(0, 0, dir * maxspeed);
+
+				const char *mdlname = mapmodelname(e.attr2);
+				if (mdlname)
+					setbbfrommodel(this, mdlname);
 			}
 
-			const char *mdlname = mapmodelname(e.attr2);
-			if (mdlname)
-				setbbfrommodel(this, mdlname);
-		}
+			void hitpush(int damage, const vec &dir, fpsent *actor, int gun)
+			{
+				if (etype != BOX && etype != BARREL)
+					return;
+				vec push(dir);
+				push.mul(80 * damage / weight);
+				vel.add(push);
+			}
 
-		void hitpush(int damage, const vec &dir, fpsent *actor, int gun)
-		{
-			if (etype != BOX && etype != BARREL)
-				return;
-			vec push(dir);
-			push.mul(80 * damage / weight);
-			vel.add(push);
-		}
+			void explode(dynent *at)
+			{
+				state = CS_DEAD;
+				exploding = 0;
+				game::explode(true, (fpsent *)at, o, this, guns[GUN_BARREL].damage, GUN_BARREL);
+			}
 
-		void explode(dynent *at)
-		{
-			state = CS_DEAD;
-			exploding = 0;
-			game::explode(true, (fpsent *)at, o, this, guns[GUN_BARREL].damage, GUN_BARREL);
-		}
+			void damaged(int damage, fpsent *at, int gun = -1)
+			{
+				if (etype != BARREL || state != CS_ALIVE || exploding)
+					return;
+				health -= damage;
+				if (health > 0)
+					return;
+				if (gun == GUN_BARREL)
+					exploding = lastmillis + EXPLODEDELAY;
+				else
+					explode(at);
+			}
 
-		void damaged(int damage, fpsent *at, int gun = -1)
-		{
-			if (etype != BARREL || state != CS_ALIVE || exploding)
-				return;
-			health -= damage;
-			if (health > 0)
-				return;
-			if (gun == GUN_BARREL)
-				exploding = lastmillis + EXPLODEDELAY;
-			else
-				explode(at);
-		}
-
-		void suicide()
-		{
-			state = CS_DEAD;
-			if (etype == BARREL)
-				explode(player1);
-		}
+			void suicide()
+			{
+				state = CS_DEAD;
+				if (etype == BARREL)
+					explode(player1);
+			}
 	};
 
 	vector<movable *> movables;
