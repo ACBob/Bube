@@ -14,7 +14,6 @@ set(serverSources
 	engine/scriptapi.cpp
 
 	# entities
-	fpsgame/bubeplayer.cpp
 )
 list(TRANSFORM serverSources PREPEND "src/")
 

@@ -20,6 +20,7 @@ class BaseEntity {
 
 
 		// Ported from physent
+		{
 			vec o, vel, falling;  // origin, velocity
 			vec deltapos, newpos; // movement interpolation
 			float yaw, pitch, roll;
@@ -80,6 +81,7 @@ class BaseEntity {
 				return timeinair || physstate < PHYS_FLOOR || vel.squaredlen() > 1e-4f || deltapos.squaredlen() > 1e-4f;
 			}
 		// End ported from physent
+		}
 	
 	protected:
 		vec position; // Position in 3d space

@@ -59,7 +59,6 @@ set(clientSources
 	fpsgame/weapon.cpp
 
 	# entities
-	fpsgame/bubeplayer.cpp
 
 	engine/scriptapi.cpp
 )
