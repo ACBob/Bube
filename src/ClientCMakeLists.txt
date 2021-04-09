@@ -49,6 +49,7 @@ set(clientSources
 	engine/entities.cpp
 	fpsgame/ai.cpp
 	fpsgame/client.cpp
+	fpsgame/entities.cpp
 	fpsgame/fps.cpp
 	fpsgame/monster.cpp
 	fpsgame/movable.cpp
