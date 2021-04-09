@@ -46,7 +46,6 @@ set(clientSources
 	engine/water.cpp
 	engine/world.cpp
 	engine/worldio.cpp
-	engine/entities.cpp
 	fpsgame/ai.cpp
 	fpsgame/client.cpp
 	fpsgame/entities.cpp
