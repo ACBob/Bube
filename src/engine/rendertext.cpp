@@ -27,6 +27,33 @@ void cleanup_fonts()
 	FT_Done_FreeType(ft);
 }
 
+// Gets the atlas texture's size based on the max height/width of a character
+// TODO: Inefficient, should pack tightly!
+int find_atlas_size(int maxwidth, int maxheight, int numcharacters)
+{
+	// assume 64 to be the smallest possible
+	int size = 64;
+
+	// 4096 is *hopefully* a silly number, so we just cap it there
+	// FIXME: If not, tell me!
+	while (size < 4096)
+	{
+		// horizontal width required
+		int totalwidth = maxwidth * numcharacters;
+		int rows = (totalwidth / size) + 1;
+	
+		if (rows * maxheight < size)
+		{
+			// Big enough
+			break;
+		}
+
+		size *= 2;	
+	}
+
+	return size;
+}
+
 // This was instrumental in writing:
 // https://learnopengl.com/In-Practice/Text-Rendering
 void newfont(char *name, char *fp, int *defaultw, int *defaulth)
@@ -45,49 +72,146 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 
 	FT_Set_Pixel_Sizes(face, *(unsigned int *)defaultw, *(unsigned int *)defaulth);
 
+	// figure out the biggest char
+	// TODO: there must be a better way
+	int biggestw = *defaultw;
+	int biggesth = *defaulth;
+
+	unsigned char c;
+	for (c = 0; c < 128; c++) // hehe c++
+	{
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			continue; // don't use this invalid character for size calculation
+		}
+
+		if (face->glyph->bitmap.width > biggestw)
+		{
+			biggestw = face->glyph->bitmap.width;
+		}
+
+		if (face->glyph->bitmap.rows > biggesth)
+		{
+			biggesth = face->glyph->bitmap.rows;
+		}
+	}
+
+	// atlas generation, figure out size
+	int atlassize = find_atlas_size(biggestw, biggesth, 128);
+	int atlaspixels = atlassize * atlassize;
+
+	// contains alpha values
+    char* atlasbuffer = new char[atlaspixels];
+
+    // set all atlas pixels to fully transparent
+    for(int i = 0; i < atlaspixels; ++i) {
+		atlasbuffer[i] = 0;
+    }
+
 	f->lineheight = (face->size->metrics.ascender - face->size->metrics.descender) >> 6;
 
 	f->chars.shrink(0);
 	f->charoffset = 0;
 
+	// Pre-allocate 128 character definitions
+	f->chars.reserve(128);
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1); // disable byte-alignment restriction
 
-	unsigned char c;
+	// Our position in the atlas
+	int atlasx = 0;
+	int atlasy = 0;
+
+	int atlasrowsize = atlassize;
+
+	// TODO: glue to the textures system
+	unsigned int texid;
+	glGenTextures(1, &texid);
+
 	for (c = 0; c < 128; c++) // hehe c++
 	{
-		// conoutf(CON_DEBUG, "%c", c);
+		font::charinfo &cinfo = f->chars.add();
+
 		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 		{
 			conoutf(CON_WARN, "Font is missing glpyh %c.", c);
+			cinfo.tex = notexture->id;
+			cinfo.offsetx = 0;
+			cinfo.offsety = 0;
+			cinfo.advance = cinfo.w = *defaultw;
+			cinfo.h = *defaulth;
+
+			cinfo.texx = 0;
+			cinfo.texy = 0;
+			cinfo.texw = 1;
+			cinfo.texh = 1;
+
 			continue;
 		}
 
-		// TODO: glue to the textures system
-		unsigned int texid;
-		glGenTextures(1, &texid);
-		glBindTexture(GL_TEXTURE_2D, texid);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, face->glyph->bitmap.width, face->glyph->bitmap.rows, 0, GL_RED,
-					 GL_UNSIGNED_BYTE, face->glyph->bitmap.buffer);
+		if (atlasx + biggestw > atlassize)
+		{ // Loop around
+			atlasx = 0;
+			atlasy += f->lineheight;
+		}
 
-		// Swizzle to alpha
-		GLint swizzlemask[] = {GL_ONE, GL_ONE, GL_ONE, GL_RED};
-		glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzlemask);
+		// add to the atlas
+		int atlasi = atlasrowsize * (atlasy + face->glyph->bitmap.rows) + atlasx;
+		int bitmapsize = face->glyph->bitmap.width * face->glyph->bitmap.rows;
+		for (int i = 0; i < bitmapsize; ++i)
+		{
+			atlasbuffer[atlasi] = face->glyph->bitmap.buffer[i];
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			if ( ( (i + 1) % face->glyph->bitmap.width ) == 0 && i != 0)
+			{
+				// start a new row
+	    		atlasi += atlasrowsize - face->glyph->bitmap.width + 1;
+			}
+			else
+			{
+				atlasi ++;
+			}
+		}
 
-		font::charinfo &cinfo = f->chars.add();
+		// Texture coordinates
+		cinfo.texx = atlasx;
+		cinfo.texy = atlasy;
+		cinfo.texw = (atlasx + (face->glyph->advance.x >> 6) - face->glyph->bitmap_left);
+		cinfo.texh = (atlasy + face->glyph->bitmap.rows);
+		// make them in texture percentages instead of pixels
+		cinfo.texx /= atlassize;
+		cinfo.texy /= atlassize;
+		cinfo.texw /= atlassize;
+		cinfo.texh /= atlassize;
+
 		cinfo.tex = texid;
 		cinfo.offsetx = face->glyph->bitmap_left;
 		cinfo.offsety = face->glyph->bitmap_top;
 		cinfo.w = face->glyph->bitmap.width;
 		cinfo.h = face->glyph->bitmap.rows;
 		cinfo.advance = face->glyph->advance.x;
+
+		atlasx += biggestw;
+
+		// conoutf(CON_DEBUG, "%c - %f, %f, %f, %f", c, cinfo.texx, cinfo.texy, cinfo.texw, cinfo.texh);
 	}
 
+	glBindTexture(GL_TEXTURE_2D, texid);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, atlassize, atlassize, 0, GL_RED,
+					GL_UNSIGNED_BYTE, atlasbuffer);
+
+	// Swizzle to alpha
+	// GLint swizzlemask[] = {GL_ONE, GL_ONE, GL_ONE, GL_RED};
+	// glTexParameteriv(GL_TEXTURE_2D, GL_TEXTURE_SWIZZLE_RGBA, swizzlemask);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
 	FT_Done_Face(face);
+
+	delete[] atlasbuffer;
 }
 
 COMMANDN(font, newfont, "ssii");
@@ -193,25 +317,38 @@ static float draw_char(char c, float x, float y, float scale = 1.0)
 	if (textmatrix) // 3D TEXT
 	{
 		gle::attrib(textmatrix->transform(vec2(x1, y1)));
-		gle::attribf(0, 0);
+		gle::attribf(cinfo.texx, cinfo.texy);
 		gle::attrib(textmatrix->transform(vec2(x2, y1)));
-		gle::attribf(1, 0);
+		gle::attribf(cinfo.texw, cinfo.texy);
 		gle::attrib(textmatrix->transform(vec2(x2, y2)));
-		gle::attribf(1, 1);
+		gle::attribf(cinfo.texw, cinfo.texh);
 		gle::attrib(textmatrix->transform(vec2(x1, y2)));
-		gle::attribf(0, 1);
+		gle::attribf(cinfo.texx, cinfo.texh);
 	}
 	else // HUD TEXT
 	{
 		gle::attribf(x1, y1);
-		gle::attribf(0, 0);
+		gle::attribf(cinfo.texx, cinfo.texy);
 		gle::attribf(x2, y1);
-		gle::attribf(1, 0);
+		gle::attribf(cinfo.texw, cinfo.texy);
 		gle::attribf(x2, y2);
-		gle::attribf(1, 1);
+		gle::attribf(cinfo.texw, cinfo.texh);
 		gle::attribf(x1, y2);
-		gle::attribf(0, 1);
+		gle::attribf(cinfo.texx, cinfo.texh);
 	}
+
+	// // HACK:
+	// // show me the fucking texture
+	// gle::attribf(0, 0);
+	// gle::attribf(0, 0);
+	// gle::attribf(512, 0);
+	// gle::attribf(1, 0);
+	// gle::attribf(512, 512);
+	// gle::attribf(1, 1);
+	// gle::attribf(0, 512);
+	// gle::attribf(0, 1);
+
+
 	gle::end();
 
 	return scale * adv;
