@@ -67,15 +67,16 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 	FT_Face face;
 	if (FT_New_Face(ft, fp, 0, &face))
 	{
-		conoutf(CON_ERROR, "freetype could not load font %s", fp);
+		// TODO: make this NOT a fatal error
+		fatal("freetype could not load font %s", fp);
 	}
 
 	FT_Set_Pixel_Sizes(face, *(unsigned int *)defaultw, *(unsigned int *)defaulth);
 
 	// figure out the biggest char
 	// TODO: there must be a better way
-	int biggestw = *defaultw;
-	int biggesth = *defaulth;
+	int biggestw = 0;
+	int biggesth = 0;
 	int biggesttop = 0;
 
 	unsigned char c;
@@ -179,23 +180,25 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 			}
 		}
 
-		// Texture coordinates
-		cinfo.texx = atlasx;
-		cinfo.texy = atlasy;
-		cinfo.texw = (atlasx + (face->glyph->advance.x >> 6) - face->glyph->bitmap_left);
-		cinfo.texh = (atlasy + biggesth);
-		// make them in texture percentages instead of pixels
-		cinfo.texx /= atlassize;
-		cinfo.texy /= atlassize;
-		cinfo.texw /= atlassize;
-		cinfo.texh /= atlassize;
-
 		cinfo.tex = texid;
 		cinfo.offsetx = face->glyph->bitmap_left;
 		cinfo.offsety = face->glyph->bitmap_top;
 		cinfo.w = face->glyph->bitmap.width;
 		cinfo.h = face->glyph->bitmap.rows;
 		cinfo.advance = face->glyph->advance.x;
+
+		// Texture coordinates
+		cinfo.texx = atlasx;
+		cinfo.texy = atlasy + (biggesttop - cinfo.offsety);
+
+		cinfo.texw = cinfo.texx + cinfo.w;
+		cinfo.texh = cinfo.texy + cinfo.h;
+
+		// make them in texture percentages instead of pixels
+		cinfo.texx /= atlassize;
+		cinfo.texy /= atlassize;
+		cinfo.texw /= atlassize;
+		cinfo.texh /= atlassize;
 
 		atlasx += biggestw;
 
