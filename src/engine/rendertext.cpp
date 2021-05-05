@@ -76,6 +76,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 	// TODO: there must be a better way
 	int biggestw = *defaultw;
 	int biggesth = *defaulth;
+	int biggesttop = 0;
 
 	unsigned char c;
 	for (c = 0; c < 128; c++) // hehe c++
@@ -93,6 +94,11 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 		if (face->glyph->bitmap.rows > biggesth)
 		{
 			biggesth = face->glyph->bitmap.rows;
+		}
+
+		if (face->glyph->bitmap_top > biggesttop)
+		{
+			biggesttop = face->glyph->bitmap_top;
 		}
 	}
 
@@ -152,11 +158,11 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 		if (atlasx + biggestw > atlassize)
 		{ // Loop around
 			atlasx = 0;
-			atlasy += f->lineheight;
+			atlasy += biggesth + biggesttop;
 		}
 
 		// add to the atlas
-		int atlasi = atlasrowsize * (atlasy + face->glyph->bitmap.rows) + atlasx;
+		int atlasi = atlasrowsize * (atlasy + (biggesttop - face->glyph->bitmap_top)) + atlasx;
 		int bitmapsize = face->glyph->bitmap.width * face->glyph->bitmap.rows;
 		for (int i = 0; i < bitmapsize; ++i)
 		{
@@ -177,7 +183,7 @@ void newfont(char *name, char *fp, int *defaultw, int *defaulth)
 		cinfo.texx = atlasx;
 		cinfo.texy = atlasy;
 		cinfo.texw = (atlasx + (face->glyph->advance.x >> 6) - face->glyph->bitmap_left);
-		cinfo.texh = (atlasy + face->glyph->bitmap.rows);
+		cinfo.texh = (atlasy + biggesth);
 		// make them in texture percentages instead of pixels
 		cinfo.texx /= atlassize;
 		cinfo.texy /= atlassize;
